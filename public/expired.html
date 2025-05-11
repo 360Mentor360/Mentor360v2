@@ -2,20 +2,87 @@
 <html lang="he" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>סשן הסתיים</title>
+  <title>⏳ סשן הסתיים - מנטור 360°</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      background-color: #002244;
+      color: white;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      text-align: center;
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    header h1 {
+      font-size: 36px;
+      margin-top: 40px;
+      color: #ffb400;
+    }
+
+    .expired-container {
+      padding: 30px 20px;
+      max-width: 600px;
+    }
+
+    .expired-container p {
+      font-size: 20px;
+      margin-bottom: 30px;
+      color: #ffcfcf;
+    }
+
+    .cta-button {
+      background-color: #00bfff;
+      color: white;
+      border: none;
+      padding: 14px 28px;
+      border-radius: 10px;
+      font-size: 18px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background-color 0.3s ease;
+    }
+
+    .cta-button:hover {
+      background-color: #0099cc;
+    }
+
+    footer {
+      margin-top: auto;
+      padding: 15px;
+      background-color: #001122;
+      width: 100%;
+      color: white;
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
 
 <header>
-  <h1>⏳ הסשן הסתיים</h1>
+  <h1>⏳ הסשן שלך הסתיים</h1>
 </header>
 
 <div class="expired-container">
-  <p>⛔ הסשן שלך פג. עליך להתחיל תהליך חדש.</p>
-  <a href="index.html" class="cta-button">חזור לדף הבית</a>
+  <p>⛔ הסשן שלך אינו תקף או שפג תוקפו. כדי להמשיך, עליך להתחיל תהליך חדש.</p>
+  <a href="index.html" class="cta-button">🔁 חזור לדף הבית והתחל ייעוץ</a>
 </div>
+
+<footer>
+  כל הזכויות שמורות © מנטור 360°
+</footer>
 
 </body>
 </html>
