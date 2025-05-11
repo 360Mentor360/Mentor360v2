@@ -20,21 +20,60 @@ function generateToken() {
   return crypto.randomBytes(12).toString('hex');
 }
 
-// יצירת סשן חדש (ללא תשלום)
-app.get('/start-session', (req, res) => {
+// יצירת סשן חדש
+app.get('/start-session', async (req, res) => {
   const token = generateToken();
-  const createdAt = new Date().toISOString();
+  const createdAt = new Date();
+  const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // שעה קדימה
 
-  pool.query(
-    'INSERT INTO sessions (token, created_at, paid) VALUES ($1, $2, false)',
-    [token, createdAt]
-  ).then(() => {
+  try {
+    await pool.query(
+      `INSERT INTO sessions (token, created_at, paid, expires_at, user_agent, ip_address)
+       VALUES ($1, $2, false, $3, $4, $5)`,
+      [token, createdAt, expiresAt, req.headers['user-agent'], req.ip]
+    );
     console.log(`✅ סשן חדש נוצר: ${token}`);
     res.redirect(`/chat.html?token=${token}`);
-  }).catch(err => {
+  } catch (err) {
     console.error('❌ שגיאה ביצירת סשן:', err);
     res.status(500).send('⚠️ שגיאה בשרת');
-  });
+  }
+});
+
+// אימות טוקן בגישה לצ'אט
+app.get('/validate-token', async (req, res) => {
+  const token = req.query.token;
+  if (!token) return res.status(400).json({ valid: false });
+
+  try {
+    const result = await pool.query(
+      `SELECT * FROM sessions WHERE token = $1 AND paid = true AND expires_at > NOW()`,
+      [token]
+    );
+    res.json({ valid: result.rows.length > 0 });
+  } catch (err) {
+    console.error('❌ שגיאה בבדיקת טוקן:', err);
+    res.status(500).json({ valid: false });
+  }
+});
+
+// סימון תשלום והוספה להיסטוריה
+app.post('/mark-paid', async (req, res) => {
+  const token = req.body.token;
+
+  try {
+    await pool.query(`UPDATE sessions SET paid = true WHERE token = $1`, [token]);
+
+    await pool.query(`
+      INSERT INTO history (token, amount, method, status, note)
+      VALUES ($1, $2, $3, $4, $5)
+    `, [token, 84.90, 'bit', 'success', 'תשלום ידני אושר']);
+
+    res.redirect(`/chat.html?token=${token}`);
+  } catch (err) {
+    console.error('❌ שגיאה בסימון תשלום:', err);
+    res.status(500).send('⚠️ שגיאה בעיבוד התשלום');
+  }
 });
 
 // דף הבית
@@ -42,7 +81,7 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// שליחת טופס צור קשר עם הפניה לדף תודה
+// שליחת טופס צור קשר
 app.post('/submit-contact', async (req, res) => {
   const { name, email, message } = req.body;
 
@@ -58,7 +97,7 @@ app.post('/submit-contact', async (req, res) => {
   }
 });
 
-// עמוד ניהול של טפסים עם סיסמה
+// עמוד ניהול טפסים
 app.get('/admin-contacts', async (req, res) => {
   const pass = req.query.pass;
   if (pass !== '1234admin') return res.status(401).send('⛔ אין גישה');
@@ -75,12 +114,12 @@ app.get('/admin-contacts', async (req, res) => {
 
     res.send(html);
   } catch (err) {
-    console.error('❌ שגיאה בשליפת נתונים מהמסד:', err);
+    console.error('❌ שגיאה בשליפת נתונים:', err);
     res.status(500).send('⚠️ שגיאה בשרת');
   }
 });
 
-// הרצת השרת
+// הפעלת השרת
 app.listen(PORT, () => {
   console.log(`✅ שרת פעיל על פורט ${PORT}`);
 });
