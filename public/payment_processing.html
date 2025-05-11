@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>מעבד תשלום...</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <h1>⏳ מעבד תשלום...</h1>
+  <p>אנא המתן מספר שניות...</p>
+</header>
+
+<script>
+  // שליפת טוקן מכתובת ה-URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const token = urlParams.get('token');
+
+  if (token) {
+    // שמירה ב-cookie
+    document.cookie = "token=" + token + "; path=/";
+
+    // שמירה ב-localStorage
+    localStorage.setItem('token', token);
+
+    // מעבר לצ'אט עם הטוקן
+    setTimeout(() => {
+      window.location.href = "chat.html?token=" + token;
+    }, 1500);
+  } else {
+    document.body.innerHTML = "<h2>⚠️ לא נמצא טוקן. לא ניתן להמשיך.</h2>";
+  }
+</script>
+
+</body>
+</html>

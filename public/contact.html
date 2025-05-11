@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>צור קשר - מנטור 360°</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="top-nav">
+  <a href="index.html">בית</a>
+  <a href="faq.html">שאלות נפוצות</a>
+  <a href="about.html">אודות</a>
+  <a href="contact.html">צור קשר</a>
+</nav>
+
+<header>
+  <h1>📬 צור קשר</h1>
+  <section>
+    <p>📧 support@mentor360.com</p>
+    <p>📞 טלפון: 03-555-5555</p>
+    <p>🕐 שעות פעילות: ראשון–חמישי, 08:00–17:00</p>
+  </section>
+</header>
+
+<main>
+  <h2>השאר לנו הודעה</h2>
+  <form action="/submit-contact" method="POST">
+    <label>שם:</label><br>
+    <input type="text" name="name" required><br><br>
+
+    <label>אימייל:</label><br>
+    <input type="email" name="email" required><br><br>
+
+    <label>הודעה:</label><br>
+    <textarea name="message" rows="5" required></textarea><br><br>
+
+    <button type="submit">שלח הודעה</button>
+  </form>
+</main>
+
+</body>
+</html>

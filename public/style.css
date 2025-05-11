@@ -1,0 +1,180 @@
+/* בסיס */
+body {
+  font-family: "Arial", sans-serif;
+  background: linear-gradient(to bottom, #001f3f, #003366);
+  margin: 0;
+  padding: 0;
+  color: white;
+  direction: rtl;
+  text-align: center;
+}
+
+/* תפריט עליון */
+.top-nav {
+  background-color: #002244;
+  padding: 15px;
+  text-align: center;
+}
+.top-nav a {
+  color: white;
+  margin: 0 15px;
+  text-decoration: none;
+  font-size: 1.2em;
+  font-weight: bold;
+}
+.top-nav a:hover {
+  text-decoration: underline;
+}
+
+/* אזור גיבור */
+.hero {
+  background-color: #003366;
+  padding: 60px 20px;
+}
+.hero-content h1 {
+  font-size: 3em;
+  margin-bottom: 20px;
+}
+.hero-content p {
+  font-size: 1.5em;
+  margin-bottom: 30px;
+}
+
+/* כפתורי קריאה לפעולה */
+a.cta-button, button.cta-button {
+  display: inline-block;
+  margin: 10px;
+  padding: 15px 30px;
+  font-size: 1.2em;
+  border-radius: 10px;
+  background-color: #00aaff;
+  color: white;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.3s ease;
+}
+a.cta-button:hover, button.cta-button:hover {
+  background-color: #0088cc;
+  transform: scale(1.05);
+}
+
+/* כפתור חזור לסשן */
+a.cta-button.secondary {
+  background-color: #ffaa00;
+}
+a.cta-button.secondary:hover {
+  background-color: #cc8800;
+  transform: scale(1.05);
+}
+
+/* סקשנים באתר */
+.features, .how-it-works {
+  margin: 40px auto;
+  max-width: 800px;
+  text-align: right;
+  padding: 0 20px;
+}
+.features ul, .how-it-works ol {
+  margin: 20px 0;
+  padding-right: 20px;
+}
+.features li, .how-it-works li {
+  margin: 10px 0;
+  font-size: 1.2em;
+}
+
+/* פוטר */
+footer {
+  margin-top: 50px;
+  padding: 20px;
+  background-color: #002244;
+}
+
+/* כפתורים כלליים */
+button {
+  font-family: "Arial", sans-serif;
+}
+
+/* עיצוב עמוד עיבוד תשלום */
+.processing {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  font-size: 2em;
+}
+
+/* צ'אט */
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 40px auto;
+  max-width: 600px;
+  padding: 20px;
+  background: #003366;
+  border-radius: 15px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+
+/* כפתורי הצ'אט */
+.chat-button {
+  display: block;
+  width: 90%;
+  margin: 10px 0;
+  padding: 15px;
+  font-size: 1.1em;
+  border-radius: 10px;
+  background-color: #00aaff;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.3s ease;
+}
+.chat-button:hover {
+  background-color: #0088cc;
+  transform: scale(1.05);
+}
+
+/* כפתור חזור בצ'אט */
+.back-button {
+  background-color: #ffaa00;
+}
+.back-button:hover {
+  background-color: #cc8800;
+  transform: scale(1.05);
+}
+
+/* טיימר סשן */
+.session-timer {
+  background-color: #1f1f1f;
+  border: 2px solid #ffaa00;
+  color: #ffaa00;
+  font-size: 1.4em;
+  padding: 10px 20px;
+  margin: 15px auto;
+  border-radius: 12px;
+  display: inline-block;
+  font-weight: bold;
+  box-shadow: 0 0 10px #ffaa00;
+}
+
+/* רספונסיביות מובייל */
+@media (max-width: 600px) {
+  .chat-container {
+    width: 95%;
+    margin: 20px auto;
+    padding: 10px;
+  }
+
+  .chat-button {
+    width: 100%;
+    font-size: 1em;
+  }
+  
+  .session-timer {
+    font-size: 1.2em;
+    padding: 8px 15px;
+  }
+}
