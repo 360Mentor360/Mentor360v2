@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style.css">
   <style>
-    /* כל העיצוב נשאר ללא שינוי כפי ששלחת */
+    /* אין שינוי בעיצוב - אותו כמו ששלחת */
     body {
       background-color: #003366;
       color: white;
@@ -180,7 +180,6 @@
     <div id="response" class="response-message"></div>
   </div>
 
-  <!-- כפתור התחלת ייעוץ עם יצירת טוקן -->
   <button class="cta-button" onclick="startSession()">להתחלת ייעוץ - ₪84.90</button>
 
   <a href="restore_session.html" class="cta-button secondary">יש לי סשן פעיל - חזור לצ'אט</a>
@@ -237,8 +236,23 @@
     }
   }
 
+  function getOrCreateUserId() {
+    const cookies = document.cookie.split(';').reduce((acc, c) => {
+      const [name, value] = c.trim().split('=');
+      acc[name] = value;
+      return acc;
+    }, {});
+    if (cookies.user_id) return cookies.user_id;
+
+    const newId = 'u_' + Math.random().toString(36).substring(2, 10);
+    document.cookie = `user_id=${newId}; path=/; max-age=${60 * 60 * 24 * 7}`; // שבוע
+    return newId;
+  }
+
   function startSession() {
-    fetch('/start-session')
+    const uid = getOrCreateUserId();
+
+    fetch(`/start-session?uid=${uid}`)
       .then(res => {
         if (res.redirected) {
           window.location.href = res.url;
