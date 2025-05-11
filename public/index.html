@@ -6,15 +6,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style.css">
   <style>
+    body {
+      background-color: #003366;
+      color: white;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
     .equipment-check {
       margin-top: 20px;
       padding: 20px;
-      background-color: rgba(255, 255, 255, 0.06); /* רקע חצי שקוף */
-      border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.2); /* גבול עדין */
+      background-color: transparent;
+      border: none;
+      border-radius: 0;
       text-align: center;
       color: white;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* צל עדין */
+      box-shadow: none;
     }
 
     .equipment-check button {
@@ -40,11 +48,84 @@
       margin-top: 15px;
       font-weight: bold;
       font-size: 1.1em;
-      color: #fff;
+    }
+
+    .testimonials {
+      background-color: rgba(255, 255, 255, 0.05);
+      padding: 30px 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      color: white;
+      text-align: center;
+    }
+
+    .testimonial-box {
+      margin: 20px auto;
+      max-width: 600px;
+      background-color: rgba(255, 255, 255, 0.08);
+      padding: 20px;
+      border-radius: 10px;
+      font-style: italic;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+
+    .testimonial-box span {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+      color: #a5ffcf;
+    }
+
+    nav.top-nav {
+      background-color: #002244;
+      padding: 10px;
+      text-align: center;
+    }
+
+    nav.top-nav a {
+      color: white;
+      margin: 0 15px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    .cta-button {
+      background-color: #00bfff;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-size: 1em;
+      cursor: pointer;
+      margin-top: 15px;
+    }
+
+    .cta-button.secondary {
+      background-color: #ffb400;
+      color: black;
+      margin-top: 10px;
+      display: inline-block;
+      text-decoration: none;
+    }
+
+    section {
+      padding: 40px 20px;
+      text-align: center;
+    }
+
+    footer {
+      background-color: #002244;
+      text-align: center;
+      padding: 15px;
+      color: white;
     }
   </style>
 </head>
-<body style="background-color: #003366; color: white;">
+<body>
 
 <!-- תפריט עליון -->
 <nav class="top-nav">
@@ -80,7 +161,7 @@
 
 <section class="features">
   <h2>למה לבחור בנו?</h2>
-  <ul>
+  <ul style="list-style: none; padding: 0;">
     <li>✔️ זיהוי בעיות טכניות במהירות</li>
     <li>✔️ צוות מקצועי עם ניסיון עשיר</li>
     <li>✔️ פתרונות מיידיים ויעילים</li>
@@ -90,11 +171,27 @@
 
 <section class="how-it-works">
   <h2>איך זה עובד?</h2>
-  <ol>
+  <ol style="list-style-position: inside;">
     <li>לוחצים על התחלת ייעוץ</li>
     <li>נכנסים ישירות לצ'אט האישי</li>
     <li>מקבלים פתרון במקום</li>
   </ol>
+</section>
+
+<section class="testimonials">
+  <h2>מה הלקוחות שלנו אומרים?</h2>
+  <div class="testimonial-box">
+    <p>“שירות מקצועי, נוח וידידותי. אלופים, תודה על הכל! חסכתי בזכותכם הרבה כסף וזמן יקר.”</p>
+    <span>– דניאל מ.</span>
+  </div>
+  <div class="testimonial-box">
+    <p>“פשוט מבריקים. תוך דקות קיבלתי פתרון מעשי לתקלה שהטרידה אותי ימים. ממליץ בחום.”</p>
+    <span>– עדי ש.</span>
+  </div>
+  <div class="testimonial-box">
+    <p>“לא האמנתי כמה מהר אפשר לפתור את זה לבד. תודה ענקית על הליווי המקצועי והסבלני.”</p>
+    <span>– יעל ר.</span>
+  </div>
 </section>
 
 <footer>
