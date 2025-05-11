@@ -8,104 +8,139 @@
   <style>
     body {
       margin: 0;
-      font-family: 'Arial', sans-serif;
-      background-color: #002b4d;
-      color: white;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #e6f2ff;
+      color: #00334d;
     }
+
     .top-nav {
-      background-color: #001f33;
+      background-color: #004c7a;
       padding: 15px;
       text-align: center;
     }
+
     .top-nav a {
-      color: white;
+      color: #fff;
       margin: 0 15px;
       text-decoration: none;
       font-weight: bold;
     }
+
     header {
       text-align: center;
-      margin-top: 30px;
+      padding: 40px 20px 20px;
+      background: linear-gradient(to right, #007acc, #004c7a);
+      color: white;
+      animation: fadeIn 1s ease-in-out;
     }
+
+    header h1 {
+      font-size: 36px;
+      margin-bottom: 10px;
+    }
+
+    main {
+      animation: fadeIn 1.2s ease-in-out;
+    }
+
     form {
-      background-color: #003b5c;
+      background-color: white;
+      color: #002b4d;
       padding: 30px;
       max-width: 500px;
       margin: 30px auto;
       border-radius: 20px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
     }
+
     form h2 {
       margin-bottom: 20px;
+      text-align: center;
     }
+
     label {
       display: block;
       margin: 10px 0 5px;
+      font-weight: bold;
     }
+
     .form-group {
       position: relative;
+      margin-bottom: 20px;
     }
+
     .form-group input,
     .form-group textarea {
       width: 100%;
       padding: 12px 40px 12px 12px;
-      border: none;
+      border: 1px solid #ccc;
       border-radius: 8px;
       font-size: 16px;
       box-sizing: border-box;
     }
+
     .form-group i {
       position: absolute;
       left: 10px;
       top: 50%;
       transform: translateY(-50%);
-      color: #888;
+      font-size: 18px;
+      color: #007acc;
     }
-    .form-group input:focus,
-    .form-group textarea:focus {
-      outline: none;
-      box-shadow: 0 0 8px #00aaff;
-    }
-    textarea {
+
+    .form-group textarea {
       resize: vertical;
       min-height: 120px;
     }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border: 1px solid #007acc;
+      box-shadow: 0 0 8px rgba(0, 122, 204, 0.4);
+    }
+
     button {
-      margin-top: 20px;
+      margin-top: 10px;
       width: 100%;
-      background-color: #0080ff;
+      background-color: #007acc;
       color: white;
       border: none;
       padding: 15px;
       border-radius: 8px;
       font-size: 18px;
+      font-weight: bold;
       cursor: pointer;
       transition: background 0.3s ease;
     }
+
     button:hover {
-      background-color: #0066cc;
+      background-color: #005c99;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
 <body>
 
 <nav class="top-nav">
-  <a href="index.html">בית</a>
-  <a href="faq.html">שאלות נפוצות</a>
-  <a href="about.html">אודות</a>
-  <a href="contact.html">צור קשר</a>
+  <a href="index.html">🏠 בית</a>
+  <a href="faq.html">❓ שאלות נפוצות</a>
+  <a href="about.html">ℹ️ אודות</a>
+  <a href="contact.html">📬 צור קשר</a>
 </nav>
 
 <header>
   <h1>📬 צור קשר</h1>
-  <p>📧 support@mentor360.com</p>
-  <p>📞 טלפון: 03-555-5555</p>
-  <p>🕐 שעות פעילות: ראשון–חמישי, 08:00–17:00</p>
+  <p>📧 support@mentor360.com | 📞 03-555-5555 | 🕐 ראשון–חמישי, 08:00–17:00</p>
 </header>
 
 <main>
   <form id="contactForm" action="/submit-contact" method="POST" onsubmit="return validateForm()">
-    <h2>השאירו לנו הודעה</h2>
+    <h2>השאירו לנו הודעה ונחזור אליכם בהקדם</h2>
 
     <div class="form-group">
       <label for="name">שם מלא:</label>
