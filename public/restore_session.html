@@ -5,19 +5,85 @@
   <title>שחזור סשן - מנטור 360°</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      background-color: #002244;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    nav.top-nav {
+      background-color: #001122;
+      padding: 12px;
+      text-align: center;
+    }
+
+    nav.top-nav a {
+      color: white;
+      margin: 0 15px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    header {
+      padding: 60px 20px;
+    }
+
+    h1 {
+      font-size: 32px;
+      margin-bottom: 20px;
+    }
+
+    .loading {
+      font-size: 20px;
+      margin-top: 10px;
+      color: #a5ffcf;
+    }
+
+    .error {
+      font-size: 18px;
+      margin-top: 30px;
+      color: #ffcfcf;
+    }
+
+    footer {
+      background-color: #001122;
+      text-align: center;
+      padding: 15px;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      color: white;
+    }
+  </style>
 </head>
 <body>
 
 <nav class="top-nav">
-  <a href="index.html">בית</a>
-  <a href="faq.html">שאלות נפוצות</a>
-  <a href="about.html">אודות</a>
-  <a href="contact.html">צור קשר</a>
+  <a href="index.html">🏠 בית</a>
+  <a href="faq.html">❓ שאלות נפוצות</a>
+  <a href="about.html">ℹ️ אודות</a>
+  <a href="contact.html">📬 צור קשר</a>
 </nav>
 
 <header>
   <h1>♻️ מאתרים סשן פעיל...</h1>
+  <div class="loading" id="status">⏳ בודק אם יש סשן שמור...</div>
+  <div class="error" id="error" style="display: none;">❌ לא נמצא סשן שמור. נא להתחיל ייעוץ חדש.</div>
 </header>
+
+<footer>
+  כל הזכויות שמורות © מנטור 360°
+</footer>
 
 <script>
   function getTokenFromCookies() {
@@ -37,9 +103,13 @@
     }
 
     if (token) {
-      window.location.href = "chat.html?token=" + token;
+      document.getElementById('status').textContent = "✅ סשן נמצא. מעביר לצ'אט...";
+      setTimeout(() => {
+        window.location.href = "chat.html?token=" + token;
+      }, 1000);
     } else {
-      window.location.href = "expired.html";
+      document.getElementById('status').style.display = 'none';
+      document.getElementById('error').style.display = 'block';
     }
   }
 
