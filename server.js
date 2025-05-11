@@ -20,27 +20,51 @@ function generateToken() {
   return crypto.randomBytes(12).toString('hex');
 }
 
-// יצירת סשן חדש
+// יצירת סשן חדש או שימוש בקיים לפי user_id
 app.get('/start-session', async (req, res) => {
-  const token = generateToken();
-  const createdAt = new Date();
-  const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // שעה קדימה
+  const userId = req.query.uid;
+  const userAgent = req.headers['user-agent'];
+  const ip = req.ip;
+
+  if (!userId) {
+    return res.status(400).send('❌ חסר מזהה משתמש');
+  }
 
   try {
-    await pool.query(
-      `INSERT INTO sessions (token, created_at, paid, expires_at, user_agent, ip_address)
-       VALUES ($1, $2, false, $3, $4, $5)`,
-      [token, createdAt, expiresAt, req.headers['user-agent'], req.ip]
+    // בדיקת סשן קיים למשתמש
+    const existing = await pool.query(
+      `SELECT token FROM sessions
+       WHERE user_identifier = $1 AND paid = false AND expires_at > NOW()
+       ORDER BY created_at DESC LIMIT 1`,
+      [userId]
     );
+
+    if (existing.rows.length > 0) {
+      const token = existing.rows[0].token;
+      console.log(`🟡 סשן קיים הוחזר: ${token}`);
+      return res.redirect(`/chat.html?token=${token}`);
+    }
+
+    // יצירת סשן חדש
+    const token = generateToken();
+    const createdAt = new Date();
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // שעה
+
+    await pool.query(
+      `INSERT INTO sessions (token, created_at, paid, expires_at, user_identifier, user_agent, ip_address)
+       VALUES ($1, $2, false, $3, $4, $5, $6)`,
+      [token, createdAt, expiresAt, userId, userAgent, ip]
+    );
+
     console.log(`✅ סשן חדש נוצר: ${token}`);
     res.redirect(`/chat.html?token=${token}`);
   } catch (err) {
-    console.error('❌ שגיאה ביצירת סשן:', err);
+    console.error('❌ שגיאה ביצירת/בדיקת סשן:', err);
     res.status(500).send('⚠️ שגיאה בשרת');
   }
 });
 
-// אימות טוקן בגישה לצ'אט
+// אימות טוקן בגישה לצ'אט (רק לאחר תשלום)
 app.get('/validate-token', async (req, res) => {
   const token = req.query.token;
   if (!token) return res.status(400).json({ valid: false });
@@ -57,7 +81,7 @@ app.get('/validate-token', async (req, res) => {
   }
 });
 
-// סימון תשלום והוספה להיסטוריה
+// סימון תשלום והוספת להיסטוריה
 app.post('/mark-paid', async (req, res) => {
   const token = req.body.token;
 
