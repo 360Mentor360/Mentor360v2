@@ -31,7 +31,6 @@ app.get('/start-session', async (req, res) => {
   }
 
   try {
-    // בדיקת סשן קיים למשתמש
     const existing = await pool.query(
       `SELECT token FROM sessions
        WHERE user_identifier = $1 AND paid = false AND expires_at > NOW()
@@ -45,7 +44,6 @@ app.get('/start-session', async (req, res) => {
       return res.redirect(`/chat.html?token=${token}`);
     }
 
-    // יצירת סשן חדש
     const token = generateToken();
     const createdAt = new Date();
     const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // שעה
@@ -64,24 +62,39 @@ app.get('/start-session', async (req, res) => {
   }
 });
 
-// אימות טוקן בגישה לצ'אט (רק לאחר תשלום)
+// אימות טוקן בגישה לצ'אט עם הסבר מפורט
 app.get('/validate-token', async (req, res) => {
   const token = req.query.token;
-  if (!token) return res.status(400).json({ valid: false });
+  if (!token) return res.status(400).json({ valid: false, reason: 'missing_token' });
 
   try {
     const result = await pool.query(
-      `SELECT * FROM sessions WHERE token = $1 AND paid = true AND expires_at > NOW()`,
+      `SELECT paid, expires_at FROM sessions WHERE token = $1`,
       [token]
     );
-    res.json({ valid: result.rows.length > 0 });
+
+    if (result.rows.length === 0) {
+      return res.json({ valid: false, reason: 'not_found' });
+    }
+
+    const session = result.rows[0];
+
+    if (!session.paid) {
+      return res.json({ valid: false, reason: 'not_paid' });
+    }
+
+    if (new Date(session.expires_at) < new Date()) {
+      return res.json({ valid: false, reason: 'expired' });
+    }
+
+    res.json({ valid: true });
   } catch (err) {
     console.error('❌ שגיאה בבדיקת טוקן:', err);
-    res.status(500).json({ valid: false });
+    res.status(500).json({ valid: false, reason: 'server_error' });
   }
 });
 
-// סימון תשלום והוספת להיסטוריה
+// סימון תשלום והוספה להיסטוריה
 app.post('/mark-paid', async (req, res) => {
   const token = req.body.token;
 
