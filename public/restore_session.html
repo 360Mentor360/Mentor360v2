@@ -78,7 +78,7 @@
 <header>
   <h1>♻️ מאתרים סשן פעיל...</h1>
   <div class="loading" id="status">⏳ בודק אם יש סשן שמור...</div>
-  <div class="error" id="error" style="display: none;">❌ לא נמצא סשן שמור. נא להתחיל ייעוץ חדש.</div>
+  <div class="error" id="error" style="display: none;">❌ לא נמצא סשן. נא להתחיל ייעוץ חדש.</div>
 </header>
 
 <footer>
@@ -86,28 +86,47 @@
 </footer>
 
 <script>
-  function getTokenFromCookies() {
-    const cookies = document.cookie.split(';').reduce((acc, cookie) => {
-      const [name, value] = cookie.trim().split('=');
-      acc[name] = value;
-      return acc;
-    }, {});
-    return cookies.token;
+  function getCookieValue(name) {
+    const cookies = document.cookie.split(';');
+    for (let c of cookies) {
+      const [k, v] = c.trim().split('=');
+      if (k === name) return v;
+    }
+    return null;
   }
 
-  function restoreSession() {
-    let token = getTokenFromCookies();
+  function getOrCreateUserId() {
+    let userId = getCookieValue("user_id");
+    if (userId) return userId;
 
-    if (!token) {
-      token = localStorage.getItem('token');
-    }
+    userId = 'u_' + Math.random().toString(36).substring(2, 10);
+    document.cookie = `user_id=${userId}; path=/; max-age=${60 * 60 * 24 * 7}`;
+    return userId;
+  }
+
+  async function restoreSession() {
+    let token = getCookieValue("token") || localStorage.getItem("token");
 
     if (token) {
       document.getElementById('status').textContent = "✅ סשן נמצא. מעביר לצ'אט...";
       setTimeout(() => {
-        window.location.href = "chat.html?token=" + token;
+        window.location.href = `chat.html?token=${token}`;
       }, 1000);
-    } else {
+      return;
+    }
+
+    // אם אין טוקן, ננסה לפי user_id
+    const uid = getOrCreateUserId();
+
+    try {
+      const res = await fetch(`/start-session?uid=${uid}`);
+      if (res.redirected) {
+        window.location.href = res.url;
+      } else {
+        throw new Error('No redirect');
+      }
+    } catch (err) {
+      console.error(err);
       document.getElementById('status').style.display = 'none';
       document.getElementById('error').style.display = 'block';
     }
