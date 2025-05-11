@@ -5,28 +5,106 @@
   <title>שאלות נפוצות - מנטור 360°</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f5faff;
+      color: #002b4d;
+      margin: 0;
+      padding: 0;
+    }
+
+    .top-nav {
+      background-color: #003b5c;
+      padding: 15px;
+      text-align: center;
+    }
+
+    .top-nav a {
+      color: #fff;
+      margin: 0 15px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    header {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 20px;
+      background-color: #e8f1f8;
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      animation: fadeIn 1.2s ease-in-out;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 32px;
+      margin-bottom: 30px;
+      color: #004c7a;
+    }
+
+    .faq-item {
+      margin-bottom: 25px;
+      padding: 15px;
+      background-color: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      transition: transform 0.3s ease;
+    }
+
+    .faq-item:hover {
+      transform: scale(1.015);
+    }
+
+    .faq-item h2 {
+      font-size: 20px;
+      margin-bottom: 10px;
+    }
+
+    .faq-item p {
+      margin: 0;
+      line-height: 1.6;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
 </head>
 <body>
 
 <nav class="top-nav">
-  <a href="index.html">בית</a>
-  <a href="faq.html">שאלות נפוצות</a>
-  <a href="about.html">אודות</a>
-  <a href="contact.html">צור קשר</a>
+  <a href="index.html">🏠 בית</a>
+  <a href="faq.html">❓ שאלות נפוצות</a>
+  <a href="about.html">ℹ️ אודות</a>
+  <a href="contact.html">📬 צור קשר</a>
 </nav>
 
 <header>
   <h1>❓ שאלות נפוצות</h1>
-  <section>
-    <h2>איך מתבצע הייעוץ?</h2>
-    <p>משלמים ומועברים לצ'אט ייעוץ אישי מיידי.</p>
 
-    <h2>כמה זמן נמשכת הגישה?</h2>
-    <p>גישה לשעה אחת לאחר תשלום.</p>
+  <div class="faq-item">
+    <h2>🧠 איך מתבצע הייעוץ?</h2>
+    <p>לאחר התשלום, מועברים אוטומטית לצ'אט ייעוץ אישי. קל, מיידי ונגיש מכל מכשיר.</p>
+  </div>
 
-    <h2>אפשר לחדש ייעוץ?</h2>
-    <p>כן, בתשלום נוסף.</p>
-  </section>
+  <div class="faq-item">
+    <h2>⏳ כמה זמן נמשכת הגישה?</h2>
+    <p>כל סשן ייעוץ נמשך שעה אחת. לאחר מכן ניתן להתחיל חדש לפי הצורך.</p>
+  </div>
+
+  <div class="faq-item">
+    <h2>🔁 אפשר לחדש ייעוץ?</h2>
+    <p>בהחלט! ניתן לשלם מחדש ולהתחיל סבב ייעוץ נוסף מיידית.</p>
+  </div>
+
+  <div class="faq-item">
+    <h2>💸 מה קורה אם יש תקלה אחרי תשלום?</h2>
+    <p>אין מה לדאוג – פשוט פנה אלינו בדף <a href="contact.html">צור קשר</a> ונפתור כל בעיה.</p>
+  </div>
+
 </header>
 
 </body>
