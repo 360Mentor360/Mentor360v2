@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
@@ -12,6 +13,42 @@
       font-family: Arial, sans-serif;
       margin: 0;
       padding: 0;
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    nav.top-nav {
+      background-color: #002244;
+      padding: 12px;
+      text-align: center;
+    }
+
+    nav.top-nav a {
+      color: white;
+      margin: 0 15px;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 60px 20px 40px;
+      background: linear-gradient(to right, #005588, #002244);
+    }
+
+    .hero h1 {
+      font-size: 38px;
+      margin-bottom: 10px;
+    }
+
+    .hero p {
+      font-size: 20px;
+      margin-bottom: 10px;
     }
 
     .equipment-check {
@@ -19,10 +56,7 @@
       padding: 20px;
       background-color: transparent;
       border: none;
-      border-radius: 0;
       text-align: center;
-      color: white;
-      box-shadow: none;
     }
 
     .equipment-check button {
@@ -50,11 +84,52 @@
       font-size: 1.1em;
     }
 
+    .cta-button {
+      background-color: #00bfff;
+      color: white;
+      border: none;
+      padding: 14px 28px;
+      border-radius: 10px;
+      font-size: 18px;
+      cursor: pointer;
+      margin-top: 25px;
+      transition: background-color 0.3s ease;
+    }
+
+    .cta-button:hover {
+      background-color: #0099cc;
+    }
+
+    .cta-button.secondary {
+      background-color: #ffb400;
+      color: black;
+      margin-top: 15px;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    section {
+      padding: 40px 20px;
+      text-align: center;
+    }
+
+    section h2 {
+      font-size: 28px;
+      margin-bottom: 20px;
+    }
+
+    ul, ol {
+      text-align: right;
+      max-width: 600px;
+      margin: auto;
+      font-size: 18px;
+      line-height: 1.8;
+    }
+
     .testimonials {
       background-color: rgba(255, 255, 255, 0.05);
       padding: 30px 20px;
       border-top: 1px solid rgba(255, 255, 255, 0.1);
-      color: white;
       text-align: center;
     }
 
@@ -75,48 +150,6 @@
       color: #a5ffcf;
     }
 
-    nav.top-nav {
-      background-color: #002244;
-      padding: 10px;
-      text-align: center;
-    }
-
-    nav.top-nav a {
-      color: white;
-      margin: 0 15px;
-      text-decoration: none;
-      font-weight: bold;
-    }
-
-    .hero {
-      text-align: center;
-      padding: 40px 20px;
-    }
-
-    .cta-button {
-      background-color: #00bfff;
-      color: white;
-      border: none;
-      padding: 12px 24px;
-      border-radius: 10px;
-      font-size: 1em;
-      cursor: pointer;
-      margin-top: 15px;
-    }
-
-    .cta-button.secondary {
-      background-color: #ffb400;
-      color: black;
-      margin-top: 10px;
-      display: inline-block;
-      text-decoration: none;
-    }
-
-    section {
-      padding: 40px 20px;
-      text-align: center;
-    }
-
     footer {
       background-color: #002244;
       text-align: center;
@@ -129,39 +162,34 @@
 
 <!-- תפריט עליון -->
 <nav class="top-nav">
-  <a href="index.html">בית</a>
-  <a href="faq.html">שאלות נפוצות</a>
-  <a href="about.html">אודות</a>
-  <a href="contact.html">צור קשר</a>
+  <a href="index.html">🏠 בית</a>
+  <a href="faq.html">❓ שאלות נפוצות</a>
+  <a href="about.html">ℹ️ אודות</a>
+  <a href="contact.html">📬 צור קשר</a>
 </nav>
 
 <header class="hero">
-  <div class="hero-content">
-    <h1>מנטור 360°</h1>
-    <p>זיהוי מדויק. פיענוח חכם. פתרון מיידי. ללא פשרות.</p>
-    <p>מהיום אתה הטכנאי של עצמך 🛠️🚜</p>
+  <h1>🚀 מנטור 360°</h1>
+  <p>זיהוי מדויק. פיענוח חכם. פתרון מיידי. ללא פשרות.</p>
+  <p>מהיום אתה הטכנאי של עצמך 🛠️🚜</p>
 
-    <!-- תיבת בדיקה לציוד -->
-    <div class="equipment-check">
-      <p>וודא שיש ברשותך מארז סט בוקסות בסיסי כדי להמשיך בתהליך</p>
-      <button class="yes-button" onclick="showResponse('yes')">✔️ יש לי</button>
-      <button class="no-button" onclick="showResponse('no')">❌ אין לי</button>
-      <div id="response" class="response-message"></div>
-    </div>
-
-    <!-- כפתור מעבר ישיר לצ'אט -->
-    <form action="chat.html" method="GET">
-      <button type="submit" class="cta-button">להתחלת ייעוץ - ₪84.90</button>
-    </form>
-
-    <!-- כפתור חזור לסשן פעיל -->
-    <a href="restore_session.html" class="cta-button secondary">יש לי סשן פעיל - חזור לצ'אט</a>
+  <div class="equipment-check">
+    <p>וודא שיש ברשותך מארז סט בוקסות בסיסי כדי להמשיך בתהליך</p>
+    <button class="yes-button" onclick="showResponse('yes')">✔️ יש לי</button>
+    <button class="no-button" onclick="showResponse('no')">❌ אין לי</button>
+    <div id="response" class="response-message"></div>
   </div>
+
+  <form action="chat.html" method="GET">
+    <button type="submit" class="cta-button">להתחלת ייעוץ - ₪84.90</button>
+  </form>
+
+  <a href="restore_session.html" class="cta-button secondary">יש לי סשן פעיל - חזור לצ'אט</a>
 </header>
 
 <section class="features">
-  <h2>למה לבחור בנו?</h2>
-  <ul style="list-style: none; padding: 0;">
+  <h2>✨ למה לבחור בנו?</h2>
+  <ul>
     <li>✔️ זיהוי בעיות טכניות במהירות</li>
     <li>✔️ צוות מקצועי עם ניסיון עשיר</li>
     <li>✔️ פתרונות מיידיים ויעילים</li>
@@ -170,8 +198,8 @@
 </section>
 
 <section class="how-it-works">
-  <h2>איך זה עובד?</h2>
-  <ol style="list-style-position: inside;">
+  <h2>🔧 איך זה עובד?</h2>
+  <ol>
     <li>לוחצים על התחלת ייעוץ</li>
     <li>נכנסים ישירות לצ'אט האישי</li>
     <li>מקבלים פתרון במקום</li>
@@ -179,7 +207,7 @@
 </section>
 
 <section class="testimonials">
-  <h2>מה הלקוחות שלנו אומרים?</h2>
+  <h2>🗣️ מה הלקוחות שלנו אומרים?</h2>
   <div class="testimonial-box">
     <p>“שירות מקצועי, נוח וידידותי. אלופים, תודה על הכל! חסכתי בזכותכם הרבה כסף וזמן יקר.”</p>
     <span>– דניאל מ.</span>
