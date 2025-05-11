@@ -5,6 +5,41 @@
   <title>מנטור 360° - ייעוץ מקצועי</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style.css">
+  <style>
+    .equipment-check {
+      margin-top: 20px;
+      padding: 20px;
+      background-color: #f4f4f4;
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .equipment-check button {
+      margin: 10px;
+      padding: 10px 20px;
+      font-size: 1.1em;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .yes-button {
+      background-color: #4caf50;
+      color: white;
+    }
+
+    .no-button {
+      background-color: #f44336;
+      color: white;
+    }
+
+    .response-message {
+      margin-top: 15px;
+      font-weight: bold;
+      font-size: 1.1em;
+      color: #333;
+    }
+  </style>
 </head>
 <body>
 
@@ -20,6 +55,15 @@
   <div class="hero-content">
     <h1>מנטור 360°</h1>
     <p>זיהוי מדויק. פיענוח חכם. פתרון מיידי. ללא פשרות.</p>
+    <p>מהיום אתה הטכנאי של עצמך 🛠️🚜</p>
+
+    <!-- תיבת בדיקה לציוד -->
+    <div class="equipment-check">
+      <p>וודא שיש ברשותך מארז סט בוקסות בסיסי כדי להמשיך בתהליך</p>
+      <button class="yes-button" onclick="showResponse('yes')">✔️ יש לי</button>
+      <button class="no-button" onclick="showResponse('no')">❌ אין לי</button>
+      <div id="response" class="response-message"></div>
+    </div>
 
     <!-- כפתור מעבר ישיר לצ'אט -->
     <form action="chat.html" method="GET">
@@ -53,6 +97,19 @@
 <footer>
   <p>כל הזכויות שמורות © מנטור 360°</p>
 </footer>
+
+<script>
+  function showResponse(answer) {
+    const responseDiv = document.getElementById("response");
+    if (answer === "yes") {
+      responseDiv.innerHTML = "🎉 מעולה! בוא נמשיך בייעוץ ונסגור את התקלה כמו מקצוענים.";
+      responseDiv.style.color = "#2e7d32";
+    } else {
+      responseDiv.innerHTML = "ללא הציוד הנדרש ייתכן קושי בפתירת התקלה באופן עצמאי. מומלץ להצטייד לפני תחילת הייעוץ.";
+      responseDiv.style.color = "#c62828";
+    }
+  }
+</script>
 
 </body>
 </html>
