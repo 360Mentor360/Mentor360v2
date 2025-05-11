@@ -19,7 +19,7 @@ function generateToken() {
   return crypto.randomBytes(12).toString('hex');
 }
 
-// יצירת סשן או החזרת סשן קיים
+// יצירת סשן או החזרת סשן קיים בתוקף
 app.get('/start-session', async (req, res) => {
   const userId = req.query.uid;
   const userAgent = req.headers['user-agent'];
@@ -28,9 +28,10 @@ app.get('/start-session', async (req, res) => {
   if (!userId) return res.status(400).send('❌ חסר מזהה משתמש');
 
   try {
+    // בודק אם יש סשן קיים בתוקף (שטרם פג)
     const existing = await pool.query(
       `SELECT token FROM sessions
-       WHERE user_identifier = $1 AND paid = false
+       WHERE user_identifier = $1 AND expires_at > NOW()
        ORDER BY created_at DESC LIMIT 1`,
       [userId]
     );
@@ -63,7 +64,7 @@ app.post('/mark-paid', async (req, res) => {
   const token = req.body.token;
 
   try {
-    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // שעה מרגע התשלום
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
 
     await pool.query(
       `UPDATE sessions SET paid = true, expires_at = $2 WHERE token = $1`,
@@ -99,10 +100,7 @@ app.get('/validate-token', async (req, res) => {
     const { paid, expires_at } = result.rows[0];
 
     if (!paid) return res.json({ valid: false, reason: 'not_paid' });
-
-    if (!expires_at || new Date(expires_at) < new Date()) {
-      return res.json({ valid: false, reason: 'expired' });
-    }
+    if (!expires_at || new Date(expires_at) < new Date()) return res.json({ valid: false, reason: 'expired' });
 
     return res.json({ valid: true });
   } catch (err) {
@@ -111,12 +109,10 @@ app.get('/validate-token', async (req, res) => {
   }
 });
 
-// דף הבית
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// שליחת טופס צור קשר
 app.post('/submit-contact', async (req, res) => {
   const { name, email, message } = req.body;
   try {
@@ -132,7 +128,6 @@ app.post('/submit-contact', async (req, res) => {
   }
 });
 
-// ניהול טפסים
 app.get('/admin-contacts', async (req, res) => {
   if (req.query.pass !== '1234admin') return res.status(401).send('⛔ אין גישה');
   try {
@@ -147,9 +142,8 @@ app.get('/admin-contacts', async (req, res) => {
     console.error('❌ שגיאה בשליפת טפסים:', err);
     res.status(500).send('⚠️ שגיאה בשרת');
   }
-});
+  });
 
-// הרצת השרת
 app.listen(PORT, () => {
   console.log(`✅ שרת פעיל על פורט ${PORT}`);
 });
