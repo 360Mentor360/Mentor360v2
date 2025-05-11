@@ -32,8 +32,8 @@ app.get('/start-session', (req, res) => {
     console.log(`✅ סשן חדש נוצר: ${token}`);
     res.redirect(`/chat.html?token=${token}`);
   }).catch(err => {
-    console.error('שגיאה ביצירת סשן:', err);
-    res.status(500).send('שגיאה בשרת');
+    console.error('❌ שגיאה ביצירת סשן:', err);
+    res.status(500).send('⚠️ שגיאה בשרת');
   });
 });
 
