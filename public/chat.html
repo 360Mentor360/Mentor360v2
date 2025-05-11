@@ -6,14 +6,43 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style.css">
   <script src="chat.js" defer></script>
+  <script defer>
+    async function validateAndStartChat() {
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get('token');
+
+      if (!token) {
+        window.location.href = "expired.html";
+        return;
+      }
+
+      // בדיקת תוקף הטוקן מול השרת
+      try {
+        const res = await fetch(`/validate-token?token=${token}`);
+        const data = await res.json();
+        if (!data.valid) {
+          window.location.href = "expired.html";
+        } else {
+          // שמירה ב-cookie ו-localStorage
+          document.cookie = `token=${token}; path=/; max-age=${60 * 60}`;
+          localStorage.setItem("token", token);
+        }
+      } catch (err) {
+        console.error("⚠️ שגיאה באימות טוקן:", err);
+        window.location.href = "expired.html";
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", validateAndStartChat);
+  </script>
 </head>
 <body>
 
 <nav class="top-nav">
-  <a href="index.html">בית</a>
-  <a href="faq.html">שאלות נפוצות</a>
-  <a href="about.html">אודות</a>
-  <a href="contact.html">צור קשר</a>
+  <a href="index.html">🏠 בית</a>
+  <a href="faq.html">❓ שאלות נפוצות</a>
+  <a href="about.html">ℹ️ אודות</a>
+  <a href="contact.html">📬 צור קשר</a>
 </nav>
 
 <header>
