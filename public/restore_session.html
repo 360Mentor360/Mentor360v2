@@ -115,15 +115,19 @@
       return;
     }
 
-    // אם אין טוקן, ננסה לפי user_id
     const uid = getOrCreateUserId();
 
     try {
-      const res = await fetch(`/start-session?uid=${uid}`);
-      if (res.redirected) {
-        window.location.href = res.url;
+      const res = await fetch(`/check-active-session?uid=${uid}`);
+      const data = await res.json();
+
+      if (data.token) {
+        document.getElementById('status').textContent = "✅ סשן פעיל נמצא. מעביר לצ'אט...";
+        setTimeout(() => {
+          window.location.href = `/chat.html?token=${data.token}`;
+        }, 1000);
       } else {
-        throw new Error('No redirect');
+        throw new Error('No active session');
       }
     } catch (err) {
       console.error(err);
