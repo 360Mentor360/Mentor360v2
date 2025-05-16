@@ -19,6 +19,30 @@ function generateToken() {
   return crypto.randomBytes(12).toString('hex');
 }
 
+// 🔍 בדיקת סשן קיים לפני פתיחה מחדש
+app.get('/check-active-session', async (req, res) => {
+  const { uid } = req.query;
+  if (!uid) return res.status(400).json({ error: 'Missing uid' });
+
+  try {
+    const { rows } = await pool.query(
+      `SELECT token FROM sessions
+       WHERE user_identifier = $1 AND paid = true AND expires_at > NOW()
+       ORDER BY expires_at DESC LIMIT 1`,
+      [uid]
+    );
+
+    if (rows.length > 0) {
+      return res.json({ token: rows[0].token });
+    } else {
+      return res.json({ token: null });
+    }
+  } catch (err) {
+    console.error('❌ שגיאה בבדיקת סשן:', err);
+    res.status(500).json({ error: 'server_error' });
+  }
+});
+
 // יצירת סשן מטופס פרטים מלא
 app.post('/start-session-form', async (req, res) => {
   const { uid, fullName, phone, email } = req.body;
@@ -30,19 +54,11 @@ app.post('/start-session-form', async (req, res) => {
   }
 
   try {
-    await pool.query(
-      `INSERT INTO clients (user_identifier, full_name, phone, email)
-       VALUES ($1, $2, $3, $4)`,
-      [uid, fullName, phone, email]
-    );
-
+    await pool.query(`INSERT INTO clients (user_identifier, full_name, phone, email) VALUES ($1, $2, $3, $4)`, [uid, fullName, phone, email]);
     await pool.query(`DELETE FROM sessions WHERE expires_at IS NOT NULL AND expires_at < NOW()`);
 
-    // בדיקה אם יש סשן קיים תקף
     const existing = await pool.query(
-      `SELECT token, expires_at FROM sessions
-       WHERE user_identifier = $1 AND paid = true AND expires_at > NOW()
-       ORDER BY created_at DESC LIMIT 1`,
+      `SELECT token FROM sessions WHERE user_identifier = $1 AND paid = true AND expires_at > NOW() ORDER BY created_at DESC LIMIT 1`,
       [uid]
     );
 
@@ -54,8 +70,7 @@ app.post('/start-session-form', async (req, res) => {
     const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
 
     await pool.query(
-      `INSERT INTO sessions (token, paid, expires_at, user_identifier, user_agent, ip_address)
-       VALUES ($1, true, $2, $3, $4, $5)`,
+      `INSERT INTO sessions (token, paid, expires_at, user_identifier, user_agent, ip_address) VALUES ($1, true, $2, $3, $4, $5)`,
       [token, expiresAt, uid, userAgent, ip]
     );
 
@@ -66,7 +81,6 @@ app.post('/start-session-form', async (req, res) => {
   }
 });
 
-// Webhook מהסולקת
 app.post('/webhook/payment', async (req, res) => {
   const { token, amount = 84.90, method = 'unknown', status = 'success', note = 'תשלום חיצוני' } = req.body;
 
@@ -75,16 +89,8 @@ app.post('/webhook/payment', async (req, res) => {
   try {
     const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
 
-    await pool.query(
-      `UPDATE sessions SET paid = true, expires_at = $2 WHERE token = $1`,
-      [token, expiresAt]
-    );
-
-    await pool.query(
-      `INSERT INTO history (token, amount, method, status, note)
-       VALUES ($1, $2, $3, $4, $5)`,
-      [token, amount, method, status, note]
-    );
+    await pool.query(`UPDATE sessions SET paid = true, expires_at = $2 WHERE token = $1`, [token, expiresAt]);
+    await pool.query(`INSERT INTO history (token, amount, method, status, note) VALUES ($1, $2, $3, $4, $5)`, [token, amount, method, status, note]);
 
     console.log(`💸 תשלום אושר בטוקן: ${token}`);
     res.sendStatus(200);
@@ -94,23 +100,14 @@ app.post('/webhook/payment', async (req, res) => {
   }
 });
 
-// תשלום ידני
 app.post('/mark-paid', async (req, res) => {
   const token = req.body.token;
 
   try {
     const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
 
-    await pool.query(
-      `UPDATE sessions SET paid = true, expires_at = $2 WHERE token = $1`,
-      [token, expiresAt]
-    );
-
-    await pool.query(
-      `INSERT INTO history (token, amount, method, status, note)
-       VALUES ($1, $2, $3, $4, $5)`,
-      [token, 84.90, 'bit', 'success', 'תשלום ידני אושר']
-    );
+    await pool.query(`UPDATE sessions SET paid = true, expires_at = $2 WHERE token = $1`, [token, expiresAt]);
+    await pool.query(`INSERT INTO history (token, amount, method, status, note) VALUES ($1, $2, $3, $4, $5)`, [token, 84.90, 'bit', 'success', 'תשלום ידני אושר']);
 
     res.redirect(`/chat.html?token=${token}`);
   } catch (err) {
@@ -119,21 +116,16 @@ app.post('/mark-paid', async (req, res) => {
   }
 });
 
-// אימות טוקן לפני צ'אט
 app.get('/validate-token', async (req, res) => {
   const token = req.query.token;
   if (!token) return res.status(400).json({ valid: false, reason: 'missing_token' });
 
   try {
-    const result = await pool.query(
-      `SELECT paid, expires_at FROM sessions WHERE token = $1`,
-      [token]
-    );
+    const result = await pool.query(`SELECT paid, expires_at FROM sessions WHERE token = $1`, [token]);
 
     if (result.rows.length === 0) return res.json({ valid: false, reason: 'not_found' });
 
     const { paid, expires_at } = result.rows[0];
-
     if (!paid) return res.json({ valid: false, reason: 'not_paid' });
     if (!expires_at || new Date(expires_at) < new Date()) return res.json({ valid: false, reason: 'expired' });
 
@@ -144,20 +136,14 @@ app.get('/validate-token', async (req, res) => {
   }
 });
 
-// דף הבית
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// טופס צור קשר
 app.post('/submit-contact', async (req, res) => {
   const { name, email, message } = req.body;
   try {
-    await pool.query(
-      `INSERT INTO contacts (name, email, message, date)
-       VALUES ($1, $2, $3, NOW())`,
-      [name, email, message]
-    );
+    await pool.query(`INSERT INTO contacts (name, email, message, date) VALUES ($1, $2, $3, NOW())`, [name, email, message]);
     res.redirect('/thank_you.html');
   } catch (err) {
     console.error('❌ שגיאה בשמירת טופס:', err);
@@ -165,7 +151,6 @@ app.post('/submit-contact', async (req, res) => {
   }
 });
 
-// ניהול טפסים
 app.get('/admin-contacts', async (req, res) => {
   if (req.query.pass !== '1234admin') return res.status(401).send('⛔ אין גישה');
   try {
@@ -182,7 +167,6 @@ app.get('/admin-contacts', async (req, res) => {
   }
 });
 
-// הפעלת השרת
 app.listen(PORT, () => {
   console.log(`✅ שרת פעיל על פורט ${PORT}`);
 });
