@@ -287,9 +287,26 @@
     return newId;
   }
 
-  function startSession() {
-    document.getElementById("sessionModal").style.display = "flex";
+  async function startSession() {
+  const uid = getOrCreateUserId();
+
+  try {
+    const res = await fetch(`/check-active-session?uid=${uid}`);
+    const data = await res.json();
+
+    if (data.token) {
+      // יש סשן פעיל – מפנה אוטומטית לצ'אט
+      window.location.href = `/chat.html?token=${data.token}`;
+    } else {
+      // אין סשן – פותח את הטופס
+      document.getElementById("sessionModal").style.display = "flex";
+    }
+  } catch (err) {
+    console.error("❌ שגיאה בבדיקת סשן:", err);
+    alert("⚠️ שגיאה בשרת");
   }
+}
+
 
   document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("sessionForm").addEventListener("submit", async (e) => {
