@@ -163,36 +163,39 @@
       background-color: rgba(0, 0, 0, 0.5);
       justify-content: center;
       align-items: center;
+      z-index: 9999;
     }
     .modal-content {
-      background: #ffffff;
-      color: black;
-      padding: 20px;
+      background: #fff;
+      padding: 30px;
       border-radius: 12px;
+      text-align: center;
       max-width: 400px;
       width: 90%;
-      text-align: center;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
     }
     .modal-content input {
+      display: block;
       width: 100%;
       padding: 10px;
-      margin: 8px 0;
+      margin: 12px 0;
       border-radius: 6px;
       border: 1px solid #ccc;
     }
     .modal-content button {
-      margin-top: 15px;
-      padding: 10px 20px;
+      padding: 12px 25px;
       background-color: #00bfff;
       color: white;
       border: none;
       border-radius: 6px;
       cursor: pointer;
+      font-size: 16px;
     }
   </style>
 </head>
 <body>
 
+<!-- תפריט עליון -->
 <nav class="top-nav">
   <a href="index.html">🏠 בית</a>
   <a href="faq.html">❓ שאלות נפוצות</a>
@@ -224,12 +227,14 @@
   <p>כל הזכויות שמורות © מנטור 360°</p>
 </footer>
 
+<!-- טופס התחלה מודאלי -->
 <div id="userModal" class="modal">
   <div class="modal-content">
-    <h3>📋 התחלת ייעוץ – פרטים נדרשים</h3>
-    <input id="fullName" placeholder="שם מלא" required>
-    <input id="phone" placeholder="מספר טלפון" required>
-    <input id="email" placeholder="כתובת מייל" required>
+    <h3>📋 התחלת ייעוץ</h3>
+    <p style="color: #333">אנא מלא את פרטיך כדי שנוכל לשלוח לך קבלה ולקשר את הסשן אליך</p>
+    <input id="fullName" placeholder="שם מלא">
+    <input id="phone" placeholder="טלפון (05XXXXXXXX)">
+    <input id="email" placeholder="אימייל">
     <button onclick="submitUserForm()">המשך</button>
   </div>
 </div>
@@ -256,13 +261,23 @@
     return newId;
   }
 
+  function validatePhone(phone) {
+    return /^05\d{8}$/.test(phone);
+  }
+
+  function validateEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
+
   function submitUserForm() {
     const uid = getOrCreateUserId();
-    const fullName = document.getElementById('fullName').value;
-    const phone = document.getElementById('phone').value;
-    const email = document.getElementById('email').value;
+    const fullName = document.getElementById('fullName').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    const email = document.getElementById('email').value.trim();
 
-    if (!fullName || !phone || !email) return alert('אנא מלא את כל השדות');
+    if (!fullName || !phone || !email) return alert('יש למלא את כל השדות');
+    if (!validatePhone(phone)) return alert('מספר הטלפון שגוי. פורמט נדרש: 05XXXXXXXX');
+    if (!validateEmail(email)) return alert('כתובת מייל לא תקינה');
 
     fetch('/start-session-form', {
       method: 'POST',
