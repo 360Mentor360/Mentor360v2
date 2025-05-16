@@ -19,7 +19,7 @@ function generateToken() {
   return crypto.randomBytes(12).toString('hex');
 }
 
-// יצירת סשן או החזרת סשן קיים בתוקף
+// יצירת סשן (כרגע במצב דמו מוסתר)
 app.get('/start-session', async (req, res) => {
   const userId = req.query.uid;
   const userAgent = req.headers['user-agent'];
@@ -28,7 +28,6 @@ app.get('/start-session', async (req, res) => {
   if (!userId) return res.status(400).send('❌ חסר מזהה משתמש');
 
   try {
-    // בודק אם יש סשן קיים בתוקף (שטרם פג)
     const existing = await pool.query(
       `SELECT token FROM sessions
        WHERE user_identifier = $1 AND expires_at > NOW()
@@ -43,18 +42,19 @@ app.get('/start-session', async (req, res) => {
     }
 
     const token = generateToken();
-    const createdAt = new Date();
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // שעה קדימה
 
+    // מצב דמו – טוקן נוצר ישר כבתשלום
     await pool.query(
-      `INSERT INTO sessions (token, created_at, paid, expires_at, user_identifier, user_agent, ip_address)
-       VALUES ($1, $2, false, NULL, $3, $4, $5)`,
-      [token, createdAt, userId, userAgent, ip]
+      `INSERT INTO sessions (token, paid, expires_at, user_identifier, user_agent, ip_address)
+       VALUES ($1, true, $2, $3, $4, $5)`,
+      [token, expiresAt, userId, userAgent, ip]
     );
 
-    console.log(`✅ סשן חדש נוצר: ${token}`);
+    console.log(`🧪 סשן דמו נוצר: ${token}`);
     res.redirect(`/chat.html?token=${token}`);
   } catch (err) {
-    console.error('❌ שגיאה ביצירת/בדיקת סשן:', err);
+    console.error('❌ שגיאה ביצירת סשן:', err);
     res.status(500).send('⚠️ שגיאה בשרת');
   }
 });
@@ -142,7 +142,7 @@ app.get('/admin-contacts', async (req, res) => {
     console.error('❌ שגיאה בשליפת טפסים:', err);
     res.status(500).send('⚠️ שגיאה בשרת');
   }
-  });
+});
 
 app.listen(PORT, () => {
   console.log(`✅ שרת פעיל על פורט ${PORT}`);
