@@ -155,42 +155,6 @@
       padding: 15px;
       color: white;
     }
-
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background-color: rgba(0, 0, 0, 0.5);
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-    }
-    .modal-content {
-      background: #fff;
-      padding: 30px;
-      border-radius: 12px;
-      text-align: center;
-      max-width: 400px;
-      width: 90%;
-      box-shadow: 0 0 20px rgba(0,0,0,0.3);
-    }
-    .modal-content input {
-      display: block;
-      width: 100%;
-      padding: 10px;
-      margin: 12px 0;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-    }
-    .modal-content button {
-      padding: 12px 25px;
-      background-color: #00bfff;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 16px;
-    }
   </style>
 </head>
 <body>
@@ -215,37 +179,81 @@
     <div id="response" class="response-message"></div>
   </div>
 
-  <button class="cta-button" onclick="document.getElementById('userModal').style.display='flex'">להתחלת ייעוץ - ₪84.90</button>
+  <button class="cta-button" onclick="startSession()">להתחלת ייעוץ - ₪84.90</button>
   <a href="restore_session.html" class="cta-button secondary">יש לי סשן פעיל - חזור לצ'אט</a>
 </header>
 
-<section class="features">...</section>
-<section class="how-it-works">...</section>
-<section class="testimonials">...</section>
+<section class="features">
+  <h2>✨ למה לבחור בנו?</h2>
+  <ul>
+    <li>✔️ זיהוי בעיות טכניות במהירות</li>
+    <li>✔️ צוות מקצועי עם ניסיון עשיר</li>
+    <li>✔️ פתרונות מיידיים ויעילים</li>
+    <li>✔️ אמינות ושקיפות מלאה</li>
+  </ul>
+</section>
+
+<section class="how-it-works">
+  <h2>🔧 איך זה עובד?</h2>
+  <ol>
+    <li>לוחצים על התחלת ייעוץ</li>
+    <li>נכנסים ישירות לצ'אט האישי</li>
+    <li>מקבלים פתרון במקום</li>
+  </ol>
+</section>
+
+<section class="testimonials">
+  <h2>🗣️ מה הלקוחות שלנו אומרים?</h2>
+  <div class="testimonial-box">
+    <p>“שירות מקצועי, נוח וידידותי. אלופים, תודה על הכל! חסכתי בזכותכם הרבה כסף וזמן יקר.”</p>
+    <span>– דניאל מ.</span>
+  </div>
+  <div class="testimonial-box">
+    <p>“פשוט מבריקים. תוך דקות קיבלתי פתרון מעשי לתקלה שהטרידה אותי ימים. ממליץ בחום.”</p>
+    <span>– עדי ש.</span>
+  </div>
+  <div class="testimonial-box">
+    <p>“לא האמנתי כמה מהר אפשר לפתור את זה לבד. תודה ענקית על הליווי המקצועי והסבלני.”</p>
+    <span>– יעל ר.</span>
+  </div>
+</section>
 
 <footer>
   <p>כל הזכויות שמורות © מנטור 360°</p>
 </footer>
 
-<!-- טופס התחלה מודאלי -->
-<div id="userModal" class="modal">
-  <div class="modal-content">
-    <h3>📋 התחלת ייעוץ</h3>
-    <p style="color: #333">אנא מלא את פרטיך כדי שנוכל לשלוח לך קבלה ולקשר את הסשן אליך</p>
-    <input id="fullName" placeholder="שם מלא">
-    <input id="phone" placeholder="טלפון (05XXXXXXXX)">
-    <input id="email" placeholder="אימייל">
-    <button onclick="submitUserForm()">המשך</button>
+<!-- ✅ טופס מודאל מושקע -->
+<div id="sessionModal" style="display:none; position:fixed; top:0; right:0; bottom:0; left:0; background:rgba(0,0,0,0.8); z-index:1000; display:flex; align-items:center; justify-content:center;">
+  <div style="background:white; color:black; border-radius:12px; padding:30px; max-width:420px; width:90%;">
+    <h2 style="text-align:center;">✍️ פתיחת ייעוץ</h2>
+    <form id="sessionForm">
+      <input type="text" id="fullName" placeholder="שם מלא" required style="width:100%; padding:10px; margin:10px 0; border-radius:6px; border:1px solid #ccc;">
+      <div style="display:flex; gap:6px;">
+        <input type="text" value="05" disabled style="width:40px; text-align:center; background:#eee; border:1px solid #ccc; border-radius:6px;">
+        <input type="text" id="phone" placeholder="מספר טלפון" required style="flex:1; padding:10px; border:1px solid #ccc; border-radius:6px;">
+      </div>
+      <div style="display:flex; gap:6px; margin-top:10px;">
+        <input type="text" id="emailUser" placeholder="שם משתמש" required style="flex:1; padding:10px; border:1px solid #ccc; border-radius:6px;">
+        <span style="padding:10px;">@</span>
+        <input type="text" id="emailDomain" placeholder="example.com" required style="flex:1; padding:10px; border:1px solid #ccc; border-radius:6px;">
+      </div>
+      <button type="submit" style="width:100%; margin-top:15px; background:#00bfff; color:white; padding:12px; border:none; border-radius:8px; font-size:16px; cursor:pointer;">🚀 התחלת ייעוץ</button>
+      <p id="formError" style="color:red; margin-top:10px;"></p>
+    </form>
+    <button onclick="document.getElementById('sessionModal').style.display='none'" style="margin-top:15px; background:#ccc; padding:8px 16px; border:none; border-radius:6px;">❌ ביטול</button>
   </div>
 </div>
 
 <script>
   function showResponse(answer) {
     const responseDiv = document.getElementById("response");
-    responseDiv.innerHTML = answer === "yes" ?
-      "🎉 מעולה! בוא נמשיך בייעוץ ונסגור את התקלה כמו מקצוענים." :
-      "ללא הציוד הנדרש ייתכן קושי בפתירת התקלה באופן עצמאי. מומלץ להצטייד לפני תחילת הייעוץ.";
-    responseDiv.style.color = answer === "yes" ? "#a5ffcf" : "#ffcfcf";
+    if (answer === "yes") {
+      responseDiv.innerHTML = "🎉 מעולה! בוא נמשיך בייעוץ ונסגור את התקלה כמו מקצוענים.";
+      responseDiv.style.color = "#a5ffcf";
+    } else {
+      responseDiv.innerHTML = "ללא הציוד הנדרש ייתכן קושי בפתירת התקלה באופן עצמאי. מומלץ להצטייד לפני תחילת הייעוץ.";
+      responseDiv.style.color = "#ffcfcf";
+    }
   }
 
   function getOrCreateUserId() {
@@ -255,48 +263,48 @@
       return acc;
     }, {});
     if (cookies.user_id) return cookies.user_id;
-
     const newId = 'u_' + Math.random().toString(36).substring(2, 10);
     document.cookie = `user_id=${newId}; path=/; max-age=${60 * 60 * 24 * 7}`;
     return newId;
   }
 
-  function validatePhone(phone) {
-    return /^05\d{8}$/.test(phone);
+  function startSession() {
+    document.getElementById("sessionModal").style.display = "flex";
   }
 
-  function validateEmail(email) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  }
+  document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("sessionForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const uid = getOrCreateUserId();
+      const fullName = document.getElementById("fullName").value.trim();
+      const phone = document.getElementById("phone").value.trim();
+      const emailUser = document.getElementById("emailUser").value.trim();
+      const emailDomain = document.getElementById("emailDomain").value.trim();
+      const email = `${emailUser}@${emailDomain}`;
+      const errorDiv = document.getElementById("formError");
 
-  function submitUserForm() {
-    const uid = getOrCreateUserId();
-    const fullName = document.getElementById('fullName').value.trim();
-    const phone = document.getElementById('phone').value.trim();
-    const email = document.getElementById('email').value.trim();
-
-    if (!fullName || !phone || !email) return alert('יש למלא את כל השדות');
-    if (!validatePhone(phone)) return alert('מספר הטלפון שגוי. פורמט נדרש: 05XXXXXXXX');
-    if (!validateEmail(email)) return alert('כתובת מייל לא תקינה');
-
-    fetch('/start-session-form', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ uid, fullName, phone, email })
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.token) {
-        window.location.href = `/chat.html?token=${data.token}`;
-      } else {
-        alert('⚠️ שגיאה ביצירת סשן');
+      if (fullName.length < 3) return errorDiv.textContent = "שם לא תקין";
+      if (!/^\d{7}$/.test(phone)) return errorDiv.textContent = "מספר טלפון חייב לכלול 7 ספרות אחרי 05";
+      if (!/^[^@\s]+$/.test(emailUser) || !/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(emailDomain)) {
+        return errorDiv.textContent = "כתובת אימייל לא תקינה";
       }
-    })
-    .catch(err => {
-      console.error(err);
-      alert('⚠️ שגיאה בשרת');
+
+      try {
+        const res = await fetch("/start-session-form", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ uid, fullName, phone: `05${phone}`, email })
+        });
+        const data = await res.json();
+        if (data.token) window.location.href = `/chat.html?token=${data.token}`;
+        else errorDiv.textContent = "⚠️ שגיאה בשרת";
+      } catch (err) {
+        console.error(err);
+        errorDiv.textContent = "⚠️ שגיאה";
+      }
     });
-  }
+  });
 </script>
+
 </body>
 </html>
