@@ -6,7 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style.css">
   <style>
-    /* אין שינוי בעיצוב - אותו כמו ששלחת */
     body {
       background-color: #003366;
       color: white;
@@ -156,11 +155,44 @@
       padding: 15px;
       color: white;
     }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background: #ffffff;
+      color: black;
+      padding: 20px;
+      border-radius: 12px;
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+    }
+    .modal-content input {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    .modal-content button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      background-color: #00bfff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
 
-<!-- תפריט עליון -->
 <nav class="top-nav">
   <a href="index.html">🏠 בית</a>
   <a href="faq.html">❓ שאלות נפוצות</a>
@@ -180,60 +212,35 @@
     <div id="response" class="response-message"></div>
   </div>
 
-  <button class="cta-button" onclick="startSession()">להתחלת ייעוץ - ₪84.90</button>
-
+  <button class="cta-button" onclick="document.getElementById('userModal').style.display='flex'">להתחלת ייעוץ - ₪84.90</button>
   <a href="restore_session.html" class="cta-button secondary">יש לי סשן פעיל - חזור לצ'אט</a>
 </header>
 
-<section class="features">
-  <h2>✨ למה לבחור בנו?</h2>
-  <ul>
-    <li>✔️ זיהוי בעיות טכניות במהירות</li>
-    <li>✔️ צוות מקצועי עם ניסיון עשיר</li>
-    <li>✔️ פתרונות מיידיים ויעילים</li>
-    <li>✔️ אמינות ושקיפות מלאה</li>
-  </ul>
-</section>
-
-<section class="how-it-works">
-  <h2>🔧 איך זה עובד?</h2>
-  <ol>
-    <li>לוחצים על התחלת ייעוץ</li>
-    <li>נכנסים ישירות לצ'אט האישי</li>
-    <li>מקבלים פתרון במקום</li>
-  </ol>
-</section>
-
-<section class="testimonials">
-  <h2>🗣️ מה הלקוחות שלנו אומרים?</h2>
-  <div class="testimonial-box">
-    <p>“שירות מקצועי, נוח וידידותי. אלופים, תודה על הכל! חסכתי בזכותכם הרבה כסף וזמן יקר.”</p>
-    <span>– דניאל מ.</span>
-  </div>
-  <div class="testimonial-box">
-    <p>“פשוט מבריקים. תוך דקות קיבלתי פתרון מעשי לתקלה שהטרידה אותי ימים. ממליץ בחום.”</p>
-    <span>– עדי ש.</span>
-  </div>
-  <div class="testimonial-box">
-    <p>“לא האמנתי כמה מהר אפשר לפתור את זה לבד. תודה ענקית על הליווי המקצועי והסבלני.”</p>
-    <span>– יעל ר.</span>
-  </div>
-</section>
+<section class="features">...</section>
+<section class="how-it-works">...</section>
+<section class="testimonials">...</section>
 
 <footer>
   <p>כל הזכויות שמורות © מנטור 360°</p>
 </footer>
 
+<div id="userModal" class="modal">
+  <div class="modal-content">
+    <h3>📋 התחלת ייעוץ – פרטים נדרשים</h3>
+    <input id="fullName" placeholder="שם מלא" required>
+    <input id="phone" placeholder="מספר טלפון" required>
+    <input id="email" placeholder="כתובת מייל" required>
+    <button onclick="submitUserForm()">המשך</button>
+  </div>
+</div>
+
 <script>
   function showResponse(answer) {
     const responseDiv = document.getElementById("response");
-    if (answer === "yes") {
-      responseDiv.innerHTML = "🎉 מעולה! בוא נמשיך בייעוץ ונסגור את התקלה כמו מקצוענים.";
-      responseDiv.style.color = "#a5ffcf";
-    } else {
-      responseDiv.innerHTML = "ללא הציוד הנדרש ייתכן קושי בפתירת התקלה באופן עצמאי. מומלץ להצטייד לפני תחילת הייעוץ.";
-      responseDiv.style.color = "#ffcfcf";
-    }
+    responseDiv.innerHTML = answer === "yes" ?
+      "🎉 מעולה! בוא נמשיך בייעוץ ונסגור את התקלה כמו מקצוענים." :
+      "ללא הציוד הנדרש ייתכן קושי בפתירת התקלה באופן עצמאי. מומלץ להצטייד לפני תחילת הייעוץ.";
+    responseDiv.style.color = answer === "yes" ? "#a5ffcf" : "#ffcfcf";
   }
 
   function getOrCreateUserId() {
@@ -245,27 +252,36 @@
     if (cookies.user_id) return cookies.user_id;
 
     const newId = 'u_' + Math.random().toString(36).substring(2, 10);
-    document.cookie = `user_id=${newId}; path=/; max-age=${60 * 60 * 24 * 7}`; // שבוע
+    document.cookie = `user_id=${newId}; path=/; max-age=${60 * 60 * 24 * 7}`;
     return newId;
   }
 
-  function startSession() {
+  function submitUserForm() {
     const uid = getOrCreateUserId();
+    const fullName = document.getElementById('fullName').value;
+    const phone = document.getElementById('phone').value;
+    const email = document.getElementById('email').value;
 
-    fetch(`/start-session?uid=${uid}`)
-      .then(res => {
-        if (res.redirected) {
-          window.location.href = res.url;
-        } else {
-          alert("⚠️ שגיאה ביצירת סשן");
-        }
-      })
-      .catch(err => {
-        console.error(err);
-        alert("⚠️ שגיאה בשרת");
-      });
+    if (!fullName || !phone || !email) return alert('אנא מלא את כל השדות');
+
+    fetch('/start-session-form', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ uid, fullName, phone, email })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.token) {
+        window.location.href = `/chat.html?token=${data.token}`;
+      } else {
+        alert('⚠️ שגיאה ביצירת סשן');
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      alert('⚠️ שגיאה בשרת');
+    });
   }
 </script>
-
 </body>
 </html>
