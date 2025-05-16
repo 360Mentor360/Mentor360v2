@@ -19,7 +19,7 @@ function generateToken() {
   return crypto.randomBytes(12).toString('hex');
 }
 
-// ✅ יצירת סשן מטופס פרטים מלא
+// יצירת סשן מטופס פרטים מלא
 app.post('/start-session-form', async (req, res) => {
   const { uid, fullName, phone, email } = req.body;
   const userAgent = req.headers['user-agent'];
@@ -36,8 +36,19 @@ app.post('/start-session-form', async (req, res) => {
       [uid, fullName, phone, email]
     );
 
-    // מחיקת סשנים שפגו
     await pool.query(`DELETE FROM sessions WHERE expires_at IS NOT NULL AND expires_at < NOW()`);
+
+    // בדיקה אם יש סשן קיים תקף
+    const existing = await pool.query(
+      `SELECT token, expires_at FROM sessions
+       WHERE user_identifier = $1 AND paid = true AND expires_at > NOW()
+       ORDER BY created_at DESC LIMIT 1`,
+      [uid]
+    );
+
+    if (existing.rows.length > 0) {
+      return res.json({ token: existing.rows[0].token });
+    }
 
     const token = generateToken();
     const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
@@ -55,8 +66,7 @@ app.post('/start-session-form', async (req, res) => {
   }
 });
 
-
-// ✅ Webhook מהסולקת
+// Webhook מהסולקת
 app.post('/webhook/payment', async (req, res) => {
   const { token, amount = 84.90, method = 'unknown', status = 'success', note = 'תשלום חיצוני' } = req.body;
 
@@ -84,7 +94,7 @@ app.post('/webhook/payment', async (req, res) => {
   }
 });
 
-// תשלום ידני (לצורך בדיקות)
+// תשלום ידני
 app.post('/mark-paid', async (req, res) => {
   const token = req.body.token;
 
@@ -109,7 +119,7 @@ app.post('/mark-paid', async (req, res) => {
   }
 });
 
-// אימות טוקן לפני כניסה לצ'אט
+// אימות טוקן לפני צ'אט
 app.get('/validate-token', async (req, res) => {
   const token = req.query.token;
   if (!token) return res.status(400).json({ valid: false, reason: 'missing_token' });
@@ -127,7 +137,7 @@ app.get('/validate-token', async (req, res) => {
     if (!paid) return res.json({ valid: false, reason: 'not_paid' });
     if (!expires_at || new Date(expires_at) < new Date()) return res.json({ valid: false, reason: 'expired' });
 
-    return res.json({ valid: true });
+    return res.json({ valid: true, expires_at });
   } catch (err) {
     console.error('❌ שגיאה בבדיקת טוקן:', err);
     res.status(500).json({ valid: false, reason: 'server_error' });
@@ -155,7 +165,7 @@ app.post('/submit-contact', async (req, res) => {
   }
 });
 
-// דף ניהול טפסים
+// ניהול טפסים
 app.get('/admin-contacts', async (req, res) => {
   if (req.query.pass !== '1234admin') return res.status(401).send('⛔ אין גישה');
   try {
@@ -164,7 +174,7 @@ app.get('/admin-contacts', async (req, res) => {
     rows.forEach((c, i) => {
       html += `<li><strong>#${i + 1}</strong><br>שם: ${c.name}<br>אימייל: ${c.email}<br>הודעה: ${c.message}<br><small>${c.date}</small><hr></li>`;
     });
-    html += `</ul><a href=\"/\">חזרה</a>`;
+    html += `</ul><a href="/">חזרה</a>`;
     res.send(html);
   } catch (err) {
     console.error('❌ שגיאה בשליפת טפסים:', err);
