@@ -19,7 +19,7 @@ function generateToken() {
   return crypto.randomBytes(12).toString('hex');
 }
 
-// יצירת סשן (כרגע במצב דמו מוסתר)
+// ✅ יצירת סשן (כרגע במצב דמו מוסתר)
 app.get('/start-session', async (req, res) => {
   const userId = req.query.uid;
   const userAgent = req.headers['user-agent'];
@@ -44,7 +44,6 @@ app.get('/start-session', async (req, res) => {
     const token = generateToken();
     const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // שעה קדימה
 
-    // מצב דמו – טוקן נוצר ישר כבתשלום
     await pool.query(
       `INSERT INTO sessions (token, paid, expires_at, user_identifier, user_agent, ip_address)
        VALUES ($1, true, $2, $3, $4, $5)`,
@@ -59,7 +58,35 @@ app.get('/start-session', async (req, res) => {
   }
 });
 
-// סימון תשלום ועדכון expires_at מרגע התשלום
+// ✅ שלב 2: Webhook מהסולקת
+app.post('/webhook/payment', async (req, res) => {
+  const { token, amount = 84.90, method = 'unknown', status = 'success', note = 'תשלום חיצוני' } = req.body;
+
+  if (!token) return res.status(400).send('❌ חסר טוקן');
+
+  try {
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+
+    await pool.query(
+      `UPDATE sessions SET paid = true, expires_at = $2 WHERE token = $1`,
+      [token, expiresAt]
+    );
+
+    await pool.query(
+      `INSERT INTO history (token, amount, method, status, note)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [token, amount, method, status, note]
+    );
+
+    console.log(`💸 תשלום אושר בטוקן: ${token}`);
+    res.sendStatus(200);
+  } catch (err) {
+    console.error('❌ שגיאה ב־Webhook:', err);
+    res.status(500).send('⚠️ שגיאה בשרת');
+  }
+});
+
+// סימון תשלום ידני
 app.post('/mark-paid', async (req, res) => {
   const token = req.body.token;
 
@@ -109,10 +136,12 @@ app.get('/validate-token', async (req, res) => {
   }
 });
 
+// דף הבית
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+// טופס צור קשר
 app.post('/submit-contact', async (req, res) => {
   const { name, email, message } = req.body;
   try {
@@ -128,6 +157,7 @@ app.post('/submit-contact', async (req, res) => {
   }
 });
 
+// דף ניהול טפסים
 app.get('/admin-contacts', async (req, res) => {
   if (req.query.pass !== '1234admin') return res.status(401).send('⛔ אין גישה');
   try {
@@ -144,6 +174,7 @@ app.get('/admin-contacts', async (req, res) => {
   }
 });
 
+// הפעלת השרת
 app.listen(PORT, () => {
   console.log(`✅ שרת פעיל על פורט ${PORT}`);
 });
