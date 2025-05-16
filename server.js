@@ -19,7 +19,7 @@ function generateToken() {
   return crypto.randomBytes(12).toString('hex');
 }
 
-// ✅ יצירת סשן (כרגע במצב דמו מוסתר)
+// ✅ יצירת סשן עם ניהול חכם
 app.get('/start-session', async (req, res) => {
   const userId = req.query.uid;
   const userAgent = req.headers['user-agent'];
@@ -28,9 +28,13 @@ app.get('/start-session', async (req, res) => {
   if (!userId) return res.status(400).send('❌ חסר מזהה משתמש');
 
   try {
+    // מחיקת סשנים שפג תוקפם
+    await pool.query(`DELETE FROM sessions WHERE expires_at IS NOT NULL AND expires_at < NOW()`);
+
+    // ניסיון להחזיר טוקן תקף
     const existing = await pool.query(
       `SELECT token FROM sessions
-       WHERE user_identifier = $1 AND expires_at > NOW()
+       WHERE user_identifier = $1 AND paid = true AND expires_at IS NOT NULL AND expires_at > NOW()
        ORDER BY created_at DESC LIMIT 1`,
       [userId]
     );
@@ -41,6 +45,7 @@ app.get('/start-session', async (req, res) => {
       return res.redirect(`/chat.html?token=${token}`);
     }
 
+    // יצירת טוקן חדש
     const token = generateToken();
     const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // שעה קדימה
 
@@ -50,7 +55,7 @@ app.get('/start-session', async (req, res) => {
       [token, expiresAt, userId, userAgent, ip]
     );
 
-    console.log(`🧪 סשן דמו נוצר: ${token}`);
+    console.log(`🧪 סשן חדש נוצר: ${token}`);
     res.redirect(`/chat.html?token=${token}`);
   } catch (err) {
     console.error('❌ שגיאה ביצירת סשן:', err);
@@ -58,7 +63,7 @@ app.get('/start-session', async (req, res) => {
   }
 });
 
-// ✅ שלב 2: Webhook מהסולקת
+// ✅ Webhook מהסולקת
 app.post('/webhook/payment', async (req, res) => {
   const { token, amount = 84.90, method = 'unknown', status = 'success', note = 'תשלום חיצוני' } = req.body;
 
@@ -86,7 +91,7 @@ app.post('/webhook/payment', async (req, res) => {
   }
 });
 
-// סימון תשלום ידני
+// תשלום ידני (לצורך בדיקות)
 app.post('/mark-paid', async (req, res) => {
   const token = req.body.token;
 
@@ -166,7 +171,7 @@ app.get('/admin-contacts', async (req, res) => {
     rows.forEach((c, i) => {
       html += `<li><strong>#${i + 1}</strong><br>שם: ${c.name}<br>אימייל: ${c.email}<br>הודעה: ${c.message}<br><small>${c.date}</small><hr></li>`;
     });
-    html += `</ul><a href="/">חזרה</a>`;
+    html += `</ul><a href=\"/\">חזרה</a>`;
     res.send(html);
   } catch (err) {
     console.error('❌ שגיאה בשליפת טפסים:', err);
