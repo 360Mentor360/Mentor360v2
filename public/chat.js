@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
   showMenu(mainMenu);
 
   // טיימר סשן
-  let remainingTime = 5; // 60 דקות
+  let remainingTime = 60 * 60; // 60 דקות
   let fiveMinuteWarningShown = false;
 
   function updateTimer() {
