@@ -19,49 +19,42 @@ function generateToken() {
   return crypto.randomBytes(12).toString('hex');
 }
 
-// ✅ יצירת סשן עם ניהול חכם
-app.get('/start-session', async (req, res) => {
-  const userId = req.query.uid;
+// ✅ יצירת סשן מטופס פרטים מלא
+app.post('/start-session-form', async (req, res) => {
+  const { uid, fullName, phone, email } = req.body;
   const userAgent = req.headers['user-agent'];
   const ip = req.ip;
 
-  if (!userId) return res.status(400).send('❌ חסר מזהה משתמש');
+  if (!uid || !fullName || !phone || !email) {
+    return res.status(400).json({ error: 'חסר מידע בטופס' });
+  }
 
   try {
-    // מחיקת סשנים שפג תוקפם
-    await pool.query(`DELETE FROM sessions WHERE expires_at IS NOT NULL AND expires_at < NOW()`);
-
-    // ניסיון להחזיר טוקן תקף
-    const existing = await pool.query(
-      `SELECT token FROM sessions
-       WHERE user_identifier = $1 AND paid = true AND expires_at IS NOT NULL AND expires_at > NOW()
-       ORDER BY created_at DESC LIMIT 1`,
-      [userId]
+    await pool.query(
+      `INSERT INTO clients (user_identifier, full_name, phone, email)
+       VALUES ($1, $2, $3, $4)`,
+      [uid, fullName, phone, email]
     );
 
-    if (existing.rows.length > 0) {
-      const token = existing.rows[0].token;
-      console.log(`🟡 סשן קיים הוחזר: ${token}`);
-      return res.redirect(`/chat.html?token=${token}`);
-    }
+    // מחיקת סשנים שפגו
+    await pool.query(`DELETE FROM sessions WHERE expires_at IS NOT NULL AND expires_at < NOW()`);
 
-    // יצירת טוקן חדש
     const token = generateToken();
-    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // שעה קדימה
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
 
     await pool.query(
       `INSERT INTO sessions (token, paid, expires_at, user_identifier, user_agent, ip_address)
        VALUES ($1, true, $2, $3, $4, $5)`,
-      [token, expiresAt, userId, userAgent, ip]
+      [token, expiresAt, uid, userAgent, ip]
     );
 
-    console.log(`🧪 סשן חדש נוצר: ${token}`);
-    res.redirect(`/chat.html?token=${token}`);
+    return res.json({ token });
   } catch (err) {
-    console.error('❌ שגיאה ביצירת סשן:', err);
-    res.status(500).send('⚠️ שגיאה בשרת');
+    console.error('❌ שגיאה בטופס פתיחת סשן:', err);
+    res.status(500).json({ error: 'שגיאה בשרת' });
   }
 });
+
 
 // ✅ Webhook מהסולקת
 app.post('/webhook/payment', async (req, res) => {
