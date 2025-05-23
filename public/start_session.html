@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>פתיחת ייעוץ - מנטור 360°</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { 
+      background-color: #002244;
+      color: white;
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      animation: fadeIn 0.7s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .form-container {
+      background: white;
+      color: black;
+      border-radius: 16px;
+      padding: 30px 30px 20px;
+      max-width: 480px;
+      width: 90%;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+      animation: slideIn 0.4s ease-in-out;
+    }
+
+    @keyframes slideIn {
+      0% { transform: translateY(-30px); opacity: 0; }
+      100% { transform: translateY(0); opacity: 1; }
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 25px;
+      font-size: 28px;
+      color: #002244;
+    }
+
+    label {
+      display: block;
+      margin-top: 16px;
+      margin-bottom: 6px;
+      font-weight: bold;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+
+    .input-group {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .input-group input:first-child {
+      width: 40px;
+      text-align: center;
+      background-color: #eee;
+    }
+
+    button {
+      margin-top: 25px;
+      width: 100%;
+      padding: 14px;
+      background-color: #00bfff;
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background-color: #0099cc;
+    }
+
+    #formError {
+      margin-top: 10px;
+      text-align: center;
+      color: red;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <h1>✍️ פתיחת ייעוץ</h1>
+    <form id="sessionForm">
+      <label for="fullName">שם מלא</label>
+      <input id="fullName" required placeholder="הקלד את שמך המלא">
+
+      <label>מספר טלפון</label>
+      <div class="input-group">
+        <input value="05" disabled>
+        <input id="phone" required placeholder="1234567">
+      </div>
+
+      <label style="margin-top: 18px">כתובת מייל</label>
+      <div class="input-group">
+        <input id="emailUser" required placeholder="yourname">
+        <span>@</span>
+        <input id="emailDomain" required placeholder="example.com">
+      </div>
+
+      <button type="submit">🚀 התחלת ייעוץ</button>
+      <p id="formError"></p>
+    </form>
+  </div>
+
+  <script>
+    function getOrCreateUserId() {
+      const cookies = document.cookie.split(';').reduce((acc, c) => {
+        const [name, value] = c.trim().split('=');
+        acc[name] = value;
+        return acc;
+      }, {});
+      if (cookies.user_id) return cookies.user_id;
+      const newId = 'u_' + Math.random().toString(36).substring(2, 10);
+      document.cookie = `user_id=${newId}; path=/; max-age=${60 * 60 * 24 * 7}`;
+      return newId;
+    }
+
+    document.getElementById("sessionForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const uid = getOrCreateUserId();
+      const fullName = document.getElementById("fullName").value.trim();
+      const phone = document.getElementById("phone").value.trim();
+      const emailUser = document.getElementById("emailUser").value.trim();
+      const emailDomain = document.getElementById("emailDomain").value.trim();
+      const email = `${emailUser}@${emailDomain}`;
+      const errorDiv = document.getElementById("formError");
+
+      if (fullName.length < 3) return errorDiv.textContent = "שם לא תקין";
+      if (!/^\d{7}$/.test(phone)) return errorDiv.textContent = "מספר טלפון לא תקין";
+      if (!/^[^@\s]+$/.test(emailUser) || !/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(emailDomain)) {
+        return errorDiv.textContent = "כתובת מייל לא תקינה";
+      }
+
+      try {
+        const res = await fetch("/start-session-form", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ uid, fullName, phone: `05${phone}`, email })
+        });
+        const data = await res.json();
+        if (data.token) window.location.href = `/chat.html?token=${data.token}`;
+        else errorDiv.textContent = "⚠️ שגיאה בשרת";
+      } catch (err) {
+        console.error(err);
+        errorDiv.textContent = "⚠️ שגיאה כללית";
+      }
+    });
+  </script>
+</body>
+</html>
