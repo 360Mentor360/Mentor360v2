@@ -83,6 +83,38 @@
       background-color: #eee;
     }
 
+    .email-group {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 6px;
+    }
+
+    .email-user, .email-domain {
+      padding: 12px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    .email-user {
+      flex: 1.2;
+    }
+
+    .email-domain {
+      flex: 1;
+      background-color: #f2f2f2;
+      color: #333;
+      direction: ltr;
+    }
+
+    .email-at {
+      font-size: 20px;
+      font-weight: bold;
+      padding: 0 4px;
+      color: #002244;
+    }
+
     button {
       margin-top: 25px;
       width: 100%;
@@ -122,11 +154,11 @@
         <input id="phone" required placeholder="1234567">
       </div>
 
-      <label style="margin-top: 18px">כתובת מייל</label>
-      <div class="input-group ltr">
-        <input id="emailUser" required placeholder="yourname">
-        <span>@</span>
-        <input id="emailDomain" required placeholder="example.com">
+      <label>כתובת מייל</label>
+      <div class="email-group">
+        <input id="emailUser" class="email-user" required placeholder="yourname">
+        <span class="email-at">@</span>
+        <input id="emailDomain" class="email-domain" required placeholder="example.com">
       </div>
 
       <button type="submit">🚀 התחלת ייעוץ</button>
