@@ -43,6 +43,35 @@
       margin-bottom: 20px;
     }
 
+    form {
+      margin: 0 auto;
+      max-width: 400px;
+      padding: 20px;
+      background-color: white;
+      border-radius: 10px;
+      color: black;
+    }
+
+    input[type="email"], input[type="tel"] {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    button {
+      background-color: #00bfff;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
     .loading {
       font-size: 20px;
       margin-top: 10px;
@@ -76,9 +105,18 @@
 </nav>
 
 <header>
-  <h1>♻️ מאתרים סשן פעיל...</h1>
-  <div class="loading" id="status">⏳ בודק אם יש סשן שמור...</div>
-  <div class="error" id="error" style="display: none;">❌ לא נמצא סשן. נא להתחיל ייעוץ חדש.</div>
+  <h1>♻️ שחזור סשן פעיל</h1>
+  <form id="restoreForm">
+    <label for="email">כתובת מייל:</label>
+    <input type="email" id="email" required placeholder="example@example.com">
+
+    <label for="phone">או מספר טלפון:</label>
+    <input type="tel" id="phone" placeholder="05XXXXXXXX">
+
+    <button type="submit">🔄 שחזר סשן</button>
+    <div class="loading" id="status"></div>
+    <div class="error" id="error" style="display: none;">❌ לא נמצא סשן פעיל עבור הפרטים שהוזנו.</div>
+  </form>
 </header>
 
 <footer>
@@ -86,57 +124,37 @@
 </footer>
 
 <script>
-  function getCookieValue(name) {
-    const cookies = document.cookie.split(';');
-    for (let c of cookies) {
-      const [k, v] = c.trim().split('=');
-      if (k === name) return v;
-    }
-    return null;
-  }
-
-  function getOrCreateUserId() {
-    let userId = getCookieValue("user_id");
-    if (userId) return userId;
-
-    userId = 'u_' + Math.random().toString(36).substring(2, 10);
-    document.cookie = `user_id=${userId}; path=/; max-age=${60 * 60 * 24 * 7}`;
-    return userId;
-  }
-
-  async function restoreSession() {
-    let token = getCookieValue("token") || localStorage.getItem("token");
-
-    if (token) {
-      document.getElementById('status').textContent = "✅ סשן נמצא. מעביר לצ'אט...";
-      setTimeout(() => {
-        window.location.href = `chat.html?token=${token}`;
-      }, 1000);
-      return;
-    }
-
-    const uid = getOrCreateUserId();
+  document.getElementById("restoreForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = document.getElementById("email").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const status = document.getElementById("status");
+    const error = document.getElementById("error");
+    error.style.display = "none";
+    status.textContent = "⏳ מחפש סשן פעיל...";
 
     try {
-      const res = await fetch(`/check-active-session?uid=${uid}`);
+      const res = await fetch("/restore-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, phone })
+      });
       const data = await res.json();
-
       if (data.token) {
-        document.getElementById('status').textContent = "✅ סשן פעיל נמצא. מעביר לצ'אט...";
+        status.textContent = "✅ סשן נמצא. מעביר לצ'אט...";
         setTimeout(() => {
           window.location.href = `/chat.html?token=${data.token}`;
         }, 1000);
       } else {
-        throw new Error('No active session');
+        status.textContent = "";
+        error.style.display = "block";
       }
     } catch (err) {
       console.error(err);
-      document.getElementById('status').style.display = 'none';
-      document.getElementById('error').style.display = 'block';
+      status.textContent = "";
+      error.style.display = "block";
     }
-  }
-
-  restoreSession();
+  });
 </script>
 
 </body>
