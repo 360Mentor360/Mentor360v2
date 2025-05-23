@@ -179,7 +179,7 @@
     <div id="response" class="response-message"></div>
   </div>
 
-  <button class="cta-button" onclick="startSession()">להתחלת ייעוץ - ₪84.90</button>
+  <a href="start_session.html" class="cta-button">להתחלת ייעוץ - ₪84.90</a>
   <a href="restore_session.html" class="cta-button secondary">יש לי סשן פעיל - חזור לצ'אט</a>
 </header>
 
@@ -242,57 +242,6 @@ function getOrCreateUserId() {
   document.cookie = `user_id=${newId}; path=/; max-age=${60 * 60 * 24 * 7}`;
   return newId;
 }
-
-async function startSession() {
-  const uid = getOrCreateUserId();
-  try {
-    const res = await fetch(`/check-active-session?uid=${uid}`);
-    const data = await res.json();
-    if (data.token) {
-      window.location.href = `/chat.html?token=${data.token}`;
-    } else {
-      document.getElementById("sessionModal").style.display = "flex";
-    }
-  } catch (err) {
-    console.error("שגיאה בבדיקת סשן", err);
-    alert("⚠️ שגיאה בשרת");
-  }
-}
-
-// טיפול בטופס שליחה
-window.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("sessionForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const uid = getOrCreateUserId();
-    const fullName = document.getElementById("fullName").value.trim();
-    const phone = document.getElementById("phone").value.trim();
-    const emailUser = document.getElementById("emailUser").value.trim();
-    const emailDomain = document.getElementById("emailDomain").value.trim();
-    const email = `${emailUser}@${emailDomain}`;
-    const errorDiv = document.getElementById("formError");
-
-    if (fullName.length < 3) return errorDiv.textContent = "שם לא תקין";
-    if (!/^\d{7}$/.test(phone)) return errorDiv.textContent = "מספר טלפון לא תקין";
-    if (!/^[^@\s]+$/.test(emailUser) || !/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(emailDomain)) {
-      return errorDiv.textContent = "כתובת מייל לא תקינה";
-    }
-
-    try {
-      const res = await fetch("/start-session-form", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ uid, fullName, phone: `05${phone}`, email })
-      });
-      const data = await res.json();
-      if (data.token) window.location.href = `/chat.html?token=${data.token}`;
-      else errorDiv.textContent = "⚠️ שגיאה בשרת";
-    } catch (err) {
-      console.error(err);
-      errorDiv.textContent = "⚠️ שגיאה כללית";
-    }
-  });
-});
-</script>
 
 </body>
 </html>
