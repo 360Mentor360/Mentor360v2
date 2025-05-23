@@ -6,66 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style.css">
   <script src="chat.js" defer></script>
-  <script defer>
-    let remainingTime = 60 * 60; // 60 דקות
-    let timerInterval;
-
-    function getTokenFromStorageOrUrl() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const tokenFromUrl = urlParams.get("token");
-      if (tokenFromUrl) return tokenFromUrl;
-
-      const cookieToken = document.cookie.split(";").find(c => c.trim().startsWith("token="));
-      return cookieToken ? cookieToken.split("=")[1] : null;
-    }
-
-    async function validateAndStartChat() {
-      const token = getTokenFromStorageOrUrl();
-
-      if (!token) return redirectToExpired();
-
-      try {
-        const res = await fetch(`/validate-token?token=${token}`);
-        const data = await res.json();
-
-        if (!data.valid) return redirectToExpired();
-
-        document.cookie = `token=${token}; path=/; max-age=${60 * 60}`;
-        localStorage.setItem("token", token);
-
-        startSessionTimer();
-      } catch (err) {
-        console.error("⚠️ שגיאה באימות טוקן:", err);
-        redirectToExpired();
-      }
-    }
-
-    function redirectToExpired() {
-      window.location.href = "expired.html";
-    }
-
-    function startSessionTimer() {
-      const timerEl = document.getElementById("session-timer");
-
-      function updateTimer() {
-        const minutes = Math.floor(remainingTime / 60);
-        const seconds = remainingTime % 60;
-        timerEl.textContent = `⏳ זמן סשן נותר: ${minutes}:${seconds.toString().padStart(2, '0')}`;
-
-        if (remainingTime <= 0) {
-          clearInterval(timerInterval);
-          redirectToExpired();
-        }
-
-        remainingTime--;
-      }
-
-      updateTimer(); // הרצה ראשונית מיד
-      timerInterval = setInterval(updateTimer, 1000);
-    }
-
-    document.addEventListener("DOMContentLoaded", validateAndStartChat);
-  </script>
 </head>
 <body>
 
