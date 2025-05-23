@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style.css">
   <style>
-    body { 
+    body {
       background-color: #002244;
       color: white;
       font-family: 'Arial', sans-serif;
@@ -27,11 +27,11 @@
     .form-container {
       background: white;
       color: black;
-      border-radius: 16px;
-      padding: 30px 30px 20px;
-      max-width: 480px;
+      border-radius: 18px;
+      padding: 30px;
+      max-width: 500px;
       width: 90%;
-      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.4);
       animation: slideIn 0.4s ease-in-out;
     }
 
@@ -56,10 +56,19 @@
 
     input {
       width: 100%;
-      padding: 10px;
+      padding: 12px;
       border: 1px solid #ccc;
       border-radius: 6px;
       font-size: 16px;
+    }
+
+    .rtl {
+      direction: rtl;
+    }
+
+    .ltr {
+      direction: ltr;
+      text-align: left;
     }
 
     .input-group {
@@ -105,16 +114,16 @@
     <h1>✍️ פתיחת ייעוץ</h1>
     <form id="sessionForm">
       <label for="fullName">שם מלא</label>
-      <input id="fullName" required placeholder="הקלד את שמך המלא">
+      <input id="fullName" class="rtl" required placeholder="הקלד את שמך המלא">
 
       <label>מספר טלפון</label>
-      <div class="input-group">
+      <div class="input-group ltr">
         <input value="05" disabled>
         <input id="phone" required placeholder="1234567">
       </div>
 
       <label style="margin-top: 18px">כתובת מייל</label>
-      <div class="input-group">
+      <div class="input-group ltr">
         <input id="emailUser" required placeholder="yourname">
         <span>@</span>
         <input id="emailDomain" required placeholder="example.com">
