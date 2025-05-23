@@ -160,6 +160,70 @@ button {
   box-shadow: 0 0 10px #ffaa00;
 }
 
+/* טפסים */
+.form-container {
+  background: white;
+  color: black;
+  border-radius: 18px;
+  padding: 30px;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+  margin: auto;
+}
+form label {
+  display: block;
+  text-align: right;
+  margin-top: 16px;
+  margin-bottom: 6px;
+  font-weight: bold;
+  font-size: 1.1em;
+}
+form input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 16px;
+}
+.input-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.input-group input[type="text"]:first-child {
+  width: 60px;
+  background: #eee;
+  text-align: center;
+}
+.input-group input[type="text"],
+.input-group input[type="email"] {
+  flex: 1;
+}
+.input-group span {
+  font-weight: bold;
+  font-size: 18px;
+}
+
+/* שדה שכתוב מימין לשמאל */
+.rtl {
+  direction: rtl;
+}
+
+/* שדה שכתוב משמאל לימין */
+.ltr {
+  direction: ltr;
+  text-align: left;
+}
+
+/* שגיאת טופס */
+#formError {
+  color: red;
+  text-align: center;
+  margin-top: 10px;
+  font-weight: bold;
+}
+
 /* רספונסיביות מובייל */
 @media (max-width: 600px) {
   .chat-container {
@@ -172,9 +236,13 @@ button {
     width: 100%;
     font-size: 1em;
   }
-  
+
   .session-timer {
     font-size: 1.2em;
     padding: 8px 15px;
+  }
+
+  .form-container {
+    padding: 20px;
   }
 }
