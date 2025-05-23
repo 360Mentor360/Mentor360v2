@@ -80,7 +80,6 @@
 
 <div class="expired-container">
   <p>⛔ הסשן שלך אינו תקף או שפג תוקפו. כדי להמשיך, ניתן להתחיל תהליך חדש או לנסות לשחזר את הסשן.</p>
-
   <a href="index.html" class="cta-button">🔁 התחל ייעוץ חדש</a>
   <a href="restore_session.html" class="cta-button">♻️ נסה לשחזר סשן</a>
 </div>
@@ -88,6 +87,22 @@
 <footer>
   כל הזכויות שמורות © מנטור 360°
 </footer>
+
+<script>
+  // שליחת בקשה לשרת לסיים סשן במסד הנתונים
+  const token = localStorage.getItem("token");
+  if (token) {
+    fetch('/expire-token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token })
+    }).catch(err => console.error("שגיאה בשליחת expire-token:", err));
+  }
+
+  // ניקוי מקומי
+  document.cookie = "token=; path=/; max-age=0";
+  localStorage.removeItem("token");
+</script>
 
 </body>
 </html>
