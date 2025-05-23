@@ -46,7 +46,7 @@ app.post('/restore-session', async (req, res) => {
   }
 });
 
-// 🔍 בדיקת סשן קיים לפני פתיחה מחדש
+// 🔍 בדיקת סשן קיים לפי מזהה משתמש
 app.get('/check-active-session', async (req, res) => {
   const { uid } = req.query;
   if (!uid) return res.status(400).json({ error: 'Missing uid' });
@@ -59,18 +59,14 @@ app.get('/check-active-session', async (req, res) => {
       [uid]
     );
 
-    if (rows.length > 0) {
-      return res.json({ token: rows[0].token });
-    } else {
-      return res.json({ token: null });
-    }
+    res.json({ token: rows.length > 0 ? rows[0].token : null });
   } catch (err) {
     console.error('❌ שגיאה בבדיקת סשן:', err);
     res.status(500).json({ error: 'server_error' });
   }
 });
 
-// יצירת סשן מטופס פרטים מלא
+// יצירת סשן חדש מטופס
 app.post('/start-session-form', async (req, res) => {
   const { uid, fullName, phone, email } = req.body;
   const userAgent = req.headers['user-agent'];
@@ -81,22 +77,30 @@ app.post('/start-session-form', async (req, res) => {
   }
 
   try {
-    await pool.query(`INSERT INTO clients (user_identifier, full_name, phone, email) VALUES ($1, $2, $3, $4)
-      ON CONFLICT (user_identifier) DO NOTHING`, [uid, fullName, phone, email]);
+    await pool.query(
+      `INSERT INTO clients (user_identifier, full_name, phone, email)
+       VALUES ($1, $2, $3, $4)
+       ON CONFLICT (user_identifier) DO NOTHING`,
+      [uid, fullName, phone, email]
+    );
 
     const token = generateToken();
     const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
 
-    await pool.query(`INSERT INTO sessions (token, paid, expires_at, user_identifier, user_agent, ip_address)
-      VALUES ($1, false, $2, $3, $4, $5)`, [token, expiresAt, uid, userAgent, ip]);
+    await pool.query(
+      `INSERT INTO sessions (token, paid, expires_at, user_identifier, user_agent, ip_address)
+       VALUES ($1, false, $2, $3, $4, $5)`,
+      [token, expiresAt, uid, userAgent, ip]
+    );
 
-    return res.json({ token });
+    res.json({ token });
   } catch (err) {
     console.error('❌ שגיאה בטופס פתיחת סשן:', err);
     res.status(500).json({ error: 'שגיאה בשרת' });
   }
 });
 
+// סימון סשן כשולם דרך Webhook
 app.post('/webhook/payment', async (req, res) => {
   const { token, amount = 84.90, method = 'unknown', status = 'success', note = 'תשלום חיצוני' } = req.body;
   if (!token) return res.status(400).send('❌ חסר טוקן');
@@ -104,8 +108,8 @@ app.post('/webhook/payment', async (req, res) => {
   try {
     const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
     await pool.query(`UPDATE sessions SET paid = true, expires_at = $2 WHERE token = $1`, [token, expiresAt]);
-    await pool.query(`INSERT INTO history (token, amount, method, status, note) VALUES ($1, $2, $3, $4, $5)`, [token, amount, method, status, note]);
-    console.log(`💸 תשלום אושר בטוקן: ${token}`);
+    await pool.query(`INSERT INTO history (token, amount, method, status, note)
+                      VALUES ($1, $2, $3, $4, $5)`, [token, amount, method, status, note]);
     res.sendStatus(200);
   } catch (err) {
     console.error('❌ שגיאה ב־Webhook:', err);
@@ -113,12 +117,14 @@ app.post('/webhook/payment', async (req, res) => {
   }
 });
 
+// סימון תשלום ידני
 app.post('/mark-paid', async (req, res) => {
   const token = req.body.token;
   try {
     const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
     await pool.query(`UPDATE sessions SET paid = true, expires_at = $2 WHERE token = $1`, [token, expiresAt]);
-    await pool.query(`INSERT INTO history (token, amount, method, status, note) VALUES ($1, $2, $3, $4, $5)`, [token, 84.90, 'bit', 'success', 'תשלום ידני אושר']);
+    await pool.query(`INSERT INTO history (token, amount, method, status, note)
+                      VALUES ($1, $2, $3, $4, $5)`, [token, 84.90, 'bit', 'success', 'תשלום ידני אושר']);
     res.redirect(`/chat.html?token=${token}`);
   } catch (err) {
     console.error('❌ שגיאה בסימון תשלום:', err);
@@ -126,6 +132,7 @@ app.post('/mark-paid', async (req, res) => {
   }
 });
 
+// אימות טוקן בעת גישה לצ'אט
 app.get('/validate-token', async (req, res) => {
   const token = req.query.token;
   if (!token) return res.status(400).json({ valid: false, reason: 'missing_token' });
@@ -133,9 +140,11 @@ app.get('/validate-token', async (req, res) => {
   try {
     const result = await pool.query(`SELECT paid, expires_at FROM sessions WHERE token = $1`, [token]);
     if (result.rows.length === 0) return res.json({ valid: false, reason: 'not_found' });
+
     const { paid, expires_at } = result.rows[0];
     if (!paid) return res.json({ valid: false, reason: 'not_paid' });
     if (!expires_at || new Date(expires_at) < new Date()) return res.json({ valid: false, reason: 'expired' });
+
     return res.json({ valid: true, expires_at });
   } catch (err) {
     console.error('❌ שגיאה בבדיקת טוקן:', err);
@@ -143,10 +152,7 @@ app.get('/validate-token', async (req, res) => {
   }
 });
 
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
+// שליחה לטופס צור קשר
 app.post('/submit-contact', async (req, res) => {
   const { name, email, message } = req.body;
   try {
@@ -158,6 +164,7 @@ app.post('/submit-contact', async (req, res) => {
   }
 });
 
+// גישה לטפסים שהתקבלו
 app.get('/admin-contacts', async (req, res) => {
   if (req.query.pass !== '1234admin') return res.status(401).send('⛔ אין גישה');
   try {
@@ -172,6 +179,11 @@ app.get('/admin-contacts', async (req, res) => {
     console.error('❌ שגיאה בשליפת טפסים:', err);
     res.status(500).send('⚠️ שגיאה בשרת');
   }
+});
+
+// דף הבית
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.listen(PORT, () => {
