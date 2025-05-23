@@ -222,44 +222,6 @@
   <p>כל הזכויות שמורות © מנטור 360°</p>
 </footer>
 
-<!-- ✅ מודאל לא מוצג בטעינה -->
-<div id="sessionModal" style="display:none; position:fixed; top:0; right:0; bottom:0; left:0; background:rgba(0,0,0,0.7); z-index:9999; display:flex; align-items:center; justify-content:center; animation: fadeIn 0.4s ease-in-out;">
-  <div style="background:white; direction:ltr; color:black; border-radius:14px; padding:30px; width:95%; max-width:440px; box-shadow: 0 0 20px rgba(0,0,0,0.4); animation: slideIn 0.4s ease;">
-    <h2 style="text-align:center; margin-bottom:20px;">✍️ פתיחת ייעוץ</h2>
-    <form id="sessionForm">
-      <label for="fullName">שם מלא:</label>
-      <input id="fullName" required placeholder="הקלד את שמך המלא" style="width:100%; padding:10px; margin:10px 0 20px; font-size:16px; border-radius:6px; border:1px solid #ccc;">
-
-      <label>מספר טלפון:</label>
-      <div style="display:flex; gap:6px; align-items:center;">
-        <input value="05" disabled style="width:40px; text-align:center; background:#eee; border:1px solid #ccc; border-radius:6px;">
-        <input id="phone" required placeholder="1234567" style="flex:1; padding:10px; border:1px solid #ccc; border-radius:6px;">
-      </div>
-
-      <label style="margin-top:20px; display:block;">כתובת מייל:</label>
-      <div style="display:flex; gap:6px; align-items:center;">
-        <input id="emailUser" required placeholder="yourname" style="flex:1; padding:10px; border:1px solid #ccc; border-radius:6px;">
-        <span>@</span>
-        <input id="emailDomain" required placeholder="example.com" style="flex:1; padding:10px; border:1px solid #ccc; border-radius:6px;">
-      </div>
-
-      <button type="submit" style="width:100%; margin-top:20px; background:#00bfff; color:white; padding:12px; border:none; border-radius:8px; font-size:18px; font-weight:bold; transition:0.3s; cursor:pointer;">🚀 התחלת ייעוץ</button>
-      <p id="formError" style="color:red; text-align:center; margin-top:10px;"></p>
-    </form>
-    <button onclick="document.getElementById('sessionModal').style.display='none'" style="margin-top:15px; background:#aaa; padding:8px 16px; border:none; border-radius:6px; cursor:pointer; font-size:14px; display:block; margin:auto;">❌ ביטול</button>
-  </div>
-</div>
-
-<style>
-@keyframes slideIn {
-  0% { transform: translateY(-30px); opacity: 0; }
-  100% { transform: translateY(0); opacity: 1; }
-}
-.cta-button:hover, .cta-button.secondary:hover, button:hover {
-  filter: brightness(1.1);
-}
-</style>
-
 <script>
 function showResponse(answer) {
   const responseDiv = document.getElementById("response");
