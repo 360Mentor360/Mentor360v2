@@ -19,6 +19,33 @@ function generateToken() {
   return crypto.randomBytes(12).toString('hex');
 }
 
+// ✅ שחזור סשן לפי מייל או טלפון
+app.post('/restore-session', async (req, res) => {
+  const { email, phone } = req.body;
+  if (!email && !phone) return res.status(400).json({ token: null });
+
+  try {
+    const result = await pool.query(
+      `SELECT s.token FROM sessions s
+       JOIN clients c ON s.user_identifier = c.user_identifier
+       WHERE s.paid = true AND s.expires_at > NOW()
+         AND ($1::text IS NULL OR c.email = $1)
+         AND ($2::text IS NULL OR c.phone = $2)
+       ORDER BY s.created_at DESC LIMIT 1`,
+      [email || null, phone || null]
+    );
+
+    if (result.rows.length > 0) {
+      return res.json({ token: result.rows[0].token });
+    } else {
+      return res.json({ token: null });
+    }
+  } catch (err) {
+    console.error('❌ שגיאה בשחזור סשן:', err);
+    res.status(500).json({ token: null });
+  }
+});
+
 // 🔍 בדיקת סשן קיים לפני פתיחה מחדש
 app.get('/check-active-session', async (req, res) => {
   const { uid } = req.query;
@@ -54,13 +81,14 @@ app.post('/start-session-form', async (req, res) => {
   }
 
   try {
-    // יצירת טוקן והחזרת כתובת צ׳אט
+    await pool.query(`INSERT INTO clients (user_identifier, full_name, phone, email) VALUES ($1, $2, $3, $4)
+      ON CONFLICT (user_identifier) DO NOTHING`, [uid, fullName, phone, email]);
+
     const token = generateToken();
     const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
 
-    await pool.query(`INSERT INTO clients (user_identifier, full_name, phone, email) VALUES ($1, $2, $3, $4)`, [uid, fullName, phone, email]);
-    await pool.query(`INSERT INTO sessions (token, paid, expires_at, user_identifier, user_agent, ip_address) VALUES ($1, false, $2, $3, $4, $5)`,
-      [token, expiresAt, uid, userAgent, ip]);
+    await pool.query(`INSERT INTO sessions (token, paid, expires_at, user_identifier, user_agent, ip_address)
+      VALUES ($1, false, $2, $3, $4, $5)`, [token, expiresAt, uid, userAgent, ip]);
 
     return res.json({ token });
   } catch (err) {
@@ -71,15 +99,12 @@ app.post('/start-session-form', async (req, res) => {
 
 app.post('/webhook/payment', async (req, res) => {
   const { token, amount = 84.90, method = 'unknown', status = 'success', note = 'תשלום חיצוני' } = req.body;
-
   if (!token) return res.status(400).send('❌ חסר טוקן');
 
   try {
     const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
-
     await pool.query(`UPDATE sessions SET paid = true, expires_at = $2 WHERE token = $1`, [token, expiresAt]);
     await pool.query(`INSERT INTO history (token, amount, method, status, note) VALUES ($1, $2, $3, $4, $5)`, [token, amount, method, status, note]);
-
     console.log(`💸 תשלום אושר בטוקן: ${token}`);
     res.sendStatus(200);
   } catch (err) {
@@ -90,13 +115,10 @@ app.post('/webhook/payment', async (req, res) => {
 
 app.post('/mark-paid', async (req, res) => {
   const token = req.body.token;
-
   try {
     const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
-
     await pool.query(`UPDATE sessions SET paid = true, expires_at = $2 WHERE token = $1`, [token, expiresAt]);
     await pool.query(`INSERT INTO history (token, amount, method, status, note) VALUES ($1, $2, $3, $4, $5)`, [token, 84.90, 'bit', 'success', 'תשלום ידני אושר']);
-
     res.redirect(`/chat.html?token=${token}`);
   } catch (err) {
     console.error('❌ שגיאה בסימון תשלום:', err);
@@ -110,13 +132,10 @@ app.get('/validate-token', async (req, res) => {
 
   try {
     const result = await pool.query(`SELECT paid, expires_at FROM sessions WHERE token = $1`, [token]);
-
     if (result.rows.length === 0) return res.json({ valid: false, reason: 'not_found' });
-
     const { paid, expires_at } = result.rows[0];
     if (!paid) return res.json({ valid: false, reason: 'not_paid' });
     if (!expires_at || new Date(expires_at) < new Date()) return res.json({ valid: false, reason: 'expired' });
-
     return res.json({ valid: true, expires_at });
   } catch (err) {
     console.error('❌ שגיאה בבדיקת טוקן:', err);
