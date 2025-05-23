@@ -1,161 +1,52 @@
-<!DOCTYPE html>
-<html lang="he" dir="rtl">
-<head>
-  <meta charset="UTF-8">
-  <title>שחזור סשן - מנטור 360°</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="style.css">
-  <style>
-    body {
-      background-color: #002244;
-      color: white;
-      font-family: Arial, sans-serif;
-      text-align: center;
-      margin: 0;
-      padding: 0;
-      animation: fadeIn 1s ease-in-out;
+const express = require('express');
+const path = require('path');
+const crypto = require('crypto');
+const { Pool } = require('pg');
+
+const app = express();
+const PORT = process.env.PORT || 4242;
+
+const pool = new Pool({
+  connectionString: process.env.DB_URL,
+  ssl: { rejectUnauthorized: false }
+});
+
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+function generateToken() {
+  return crypto.randomBytes(12).toString('hex');
+}
+
+// 🔍 שחזור סשן לפי מייל או טלפון
+app.post('/restore-session', async (req, res) => {
+  const { email, phone } = req.body;
+  if (!email && !phone) return res.status(400).json({ error: 'יש להזין מייל או טלפון' });
+
+  try {
+    const condition = email ? 'email = $1' : 'phone = $1';
+    const value = email || phone;
+
+    const { rows } = await pool.query(
+      `SELECT s.token FROM sessions s 
+       JOIN clients c ON s.user_identifier = c.user_identifier
+       WHERE ${condition} AND s.paid = true AND s.expires_at > NOW()
+       ORDER BY s.expires_at DESC LIMIT 1`,
+      [value]
+    );
+
+    if (rows.length > 0) {
+      return res.json({ token: rows[0].token });
+    } else {
+      return res.json({ token: null });
     }
+  } catch (err) {
+    console.error('❌ שגיאה בשחזור סשן:', err);
+    res.status(500).json({ error: 'שגיאה בשרת' });
+  }
+});
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    nav.top-nav {
-      background-color: #001122;
-      padding: 12px;
-      text-align: center;
-    }
-
-    nav.top-nav a {
-      color: white;
-      margin: 0 15px;
-      text-decoration: none;
-      font-weight: bold;
-    }
-
-    header {
-      padding: 60px 20px;
-    }
-
-    h1 {
-      font-size: 32px;
-      margin-bottom: 20px;
-    }
-
-    form {
-      margin: 0 auto;
-      max-width: 400px;
-      padding: 20px;
-      background-color: white;
-      border-radius: 10px;
-      color: black;
-    }
-
-    input[type="email"], input[type="tel"] {
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      font-size: 16px;
-    }
-
-    button {
-      background-color: #00bfff;
-      color: white;
-      border: none;
-      padding: 12px 20px;
-      font-size: 16px;
-      border-radius: 8px;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-
-    .loading {
-      font-size: 20px;
-      margin-top: 10px;
-      color: #a5ffcf;
-    }
-
-    .error {
-      font-size: 18px;
-      margin-top: 30px;
-      color: #ffcfcf;
-    }
-
-    footer {
-      background-color: #001122;
-      text-align: center;
-      padding: 15px;
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-      color: white;
-    }
-  </style>
-</head>
-<body>
-
-<nav class="top-nav">
-  <a href="index.html">🏠 בית</a>
-  <a href="faq.html">❓ שאלות נפוצות</a>
-  <a href="about.html">ℹ️ אודות</a>
-  <a href="contact.html">📬 צור קשר</a>
-</nav>
-
-<header>
-  <h1>♻️ שחזור סשן פעיל</h1>
-  <form id="restoreForm">
-    <label for="email">כתובת מייל:</label>
-    <input type="email" id="email" required placeholder="example@example.com">
-
-    <label for="phone">או מספר טלפון:</label>
-    <input type="tel" id="phone" placeholder="05XXXXXXXX">
-
-    <button type="submit">🔄 שחזר סשן</button>
-    <div class="loading" id="status"></div>
-    <div class="error" id="error" style="display: none;">❌ לא נמצא סשן פעיל עבור הפרטים שהוזנו.</div>
-  </form>
-</header>
-
-<footer>
-  כל הזכויות שמורות © מנטור 360°
-</footer>
-
-<script>
-  document.getElementById("restoreForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const email = document.getElementById("email").value.trim();
-    const phone = document.getElementById("phone").value.trim();
-    const status = document.getElementById("status");
-    const error = document.getElementById("error");
-    error.style.display = "none";
-    status.textContent = "⏳ מחפש סשן פעיל...";
-
-    try {
-      const res = await fetch("/restore-session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, phone })
-      });
-      const data = await res.json();
-      if (data.token) {
-        status.textContent = "✅ סשן נמצא. מעביר לצ'אט...";
-        setTimeout(() => {
-          window.location.href = `/chat.html?token=${data.token}`;
-        }, 1000);
-      } else {
-        status.textContent = "";
-        error.style.display = "block";
-      }
-    } catch (err) {
-      console.error(err);
-      status.textContent = "";
-      error.style.display = "block";
-    }
-  });
-</script>
-
-</body>
-</html>
+app.listen(PORT, () => {
+  console.log(`✅ שרת פעיל על פורט ${PORT}`);
+});
