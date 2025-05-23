@@ -54,25 +54,13 @@ app.post('/start-session-form', async (req, res) => {
   }
 
   try {
-    await pool.query(`INSERT INTO clients (user_identifier, full_name, phone, email) VALUES ($1, $2, $3, $4)`, [uid, fullName, phone, email]);
-    await pool.query(`DELETE FROM sessions WHERE expires_at IS NOT NULL AND expires_at < NOW()`);
-
-    const existing = await pool.query(
-      `SELECT token FROM sessions WHERE user_identifier = $1 AND paid = true AND expires_at > NOW() ORDER BY created_at DESC LIMIT 1`,
-      [uid]
-    );
-
-    if (existing.rows.length > 0) {
-      return res.json({ token: existing.rows[0].token });
-    }
-
+    // יצירת טוקן והחזרת כתובת צ׳אט
     const token = generateToken();
     const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
 
-    await pool.query(
-      `INSERT INTO sessions (token, paid, expires_at, user_identifier, user_agent, ip_address) VALUES ($1, true, $2, $3, $4, $5)`,
-      [token, expiresAt, uid, userAgent, ip]
-    );
+    await pool.query(`INSERT INTO clients (user_identifier, full_name, phone, email) VALUES ($1, $2, $3, $4)`, [uid, fullName, phone, email]);
+    await pool.query(`INSERT INTO sessions (token, paid, expires_at, user_identifier, user_agent, ip_address) VALUES ($1, false, $2, $3, $4, $5)`,
+      [token, expiresAt, uid, userAgent, ip]);
 
     return res.json({ token });
   } catch (err) {
