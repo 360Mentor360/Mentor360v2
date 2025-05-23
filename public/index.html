@@ -14,18 +14,15 @@
       padding: 0;
       animation: fadeIn 1s ease-in-out;
     }
-
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
     }
-
     nav.top-nav {
       background-color: #002244;
       padding: 12px;
       text-align: center;
     }
-
     nav.top-nav a {
       color: white;
       margin: 0 15px;
@@ -33,23 +30,19 @@
       font-weight: bold;
       font-size: 16px;
     }
-
     .hero {
       text-align: center;
       padding: 60px 20px 40px;
       background: linear-gradient(to right, #005588, #002244);
     }
-
     .hero h1 {
       font-size: 38px;
       margin-bottom: 10px;
     }
-
     .hero p {
       font-size: 20px;
       margin-bottom: 10px;
     }
-
     .equipment-check {
       margin-top: 20px;
       padding: 20px;
@@ -57,7 +50,6 @@
       border: none;
       text-align: center;
     }
-
     .equipment-check button {
       margin: 10px;
       padding: 10px 20px;
@@ -66,23 +58,19 @@
       border-radius: 8px;
       cursor: pointer;
     }
-
     .yes-button {
       background-color: #4caf50;
       color: white;
     }
-
     .no-button {
       background-color: #f44336;
       color: white;
     }
-
     .response-message {
       margin-top: 15px;
       font-weight: bold;
       font-size: 1.1em;
     }
-
     .cta-button {
       background-color: #00bfff;
       color: white;
@@ -94,12 +82,10 @@
       margin-top: 25px;
       transition: 0.3s;
     }
-
     .cta-button:hover {
       background-color: #0099cc;
       transform: scale(1.05);
     }
-
     .cta-button.secondary {
       background-color: #ffb400;
       color: black;
@@ -107,17 +93,14 @@
       text-decoration: none;
       display: inline-block;
     }
-
     section {
       padding: 40px 20px;
       text-align: center;
     }
-
     section h2 {
       font-size: 28px;
       margin-bottom: 20px;
     }
-
     ul, ol {
       text-align: right;
       max-width: 600px;
@@ -125,14 +108,12 @@
       font-size: 18px;
       line-height: 1.8;
     }
-
     .testimonials {
       background-color: rgba(255, 255, 255, 0.05);
       padding: 30px 20px;
       border-top: 1px solid rgba(255, 255, 255, 0.1);
       text-align: center;
     }
-
     .testimonial-box {
       margin: 20px auto;
       max-width: 600px;
@@ -142,14 +123,12 @@
       font-style: italic;
       box-shadow: 0 0 10px rgba(0,0,0,0.2);
     }
-
     .testimonial-box span {
       display: block;
       margin-top: 10px;
       font-weight: bold;
       color: #a5ffcf;
     }
-
     footer {
       background-color: #002244;
       text-align: center;
@@ -225,23 +204,15 @@
 <script>
 function showResponse(answer) {
   const responseDiv = document.getElementById("response");
-  responseDiv.innerHTML = answer === "yes" ?
-    "🎉 מעולה! בוא נמשיך בייעוץ ונסגור את התקלה כמו מקצוענים." :
-    "ללא הציוד הנדרש ייתכן קושי בפתירת התקלה. מומלץ להצטייד מראש.";
-  responseDiv.style.color = answer === "yes" ? "#a5ffcf" : "#ffcfcf";
+  if (answer === "yes") {
+    responseDiv.innerHTML = "🎉 מעולה! בוא נמשיך בייעוץ ונסגור את התקלה כמו מקצוענים.";
+    responseDiv.style.color = "#a5ffcf";
+  } else {
+    responseDiv.innerHTML = "ללא הציוד הנדרש ייתכן קושי בפתירת התקלה. מומלץ להצטייד מראש.";
+    responseDiv.style.color = "#ffcfcf";
+  }
 }
-
-function getOrCreateUserId() {
-  const cookies = document.cookie.split(';').reduce((acc, c) => {
-    const [name, value] = c.trim().split('=');
-    acc[name] = value;
-    return acc;
-  }, {});
-  if (cookies.user_id) return cookies.user_id;
-  const newId = 'u_' + Math.random().toString(36).substring(2, 10);
-  document.cookie = `user_id=${newId}; path=/; max-age=${60 * 60 * 24 * 7}`;
-  return newId;
-}
+</script>
 
 </body>
 </html>
